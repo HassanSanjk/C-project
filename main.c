@@ -7,11 +7,9 @@ void handleMainMenuChoice(int choice);
 void handleProductMenuChoice(int choice);
 void displayWelcomeMessage(void);
 void displayExitMessage(void);
-void pauseProgram(void);
 void clearScreen(void);
 
 /* Placeholder function prototypes for other team members' modules */
-/* These will be replaced with actual header includes when integrated */
 void inventoryManagementMenu(void);
 void categorySupplierMenu(void);
 void userTransactionMenu(void);
@@ -26,12 +24,9 @@ int main(void) {
     do {
         clearScreen();
         displayMainMenu();
-        choice = getValidInteger("Enter your choice: ", 0, 6);
+        printf("Select: ");
+        scanf("%d", &choice);
         handleMainMenuChoice(choice);
-        
-        if (choice != 0) {
-            pauseProgram();
-        }
         
     } while (choice != 0);
     
@@ -54,9 +49,7 @@ void displayWelcomeMessage(void) {
 
 /* Function to display main menu */
 void displayMainMenu(void) {
-    printf("================================================================================\n");
-    printf("                           MAIN MENU                                           \n");
-    printf("================================================================================\n");
+    printf("\n--- MAIN MENU ---\n");
     printf("1. Product Management\n");
     printf("2. Inventory & Stock Management\n");
     printf("3. Category & Supplier Management\n");
@@ -64,21 +57,17 @@ void displayMainMenu(void) {
     printf("5. File Operations & Reports\n");
     printf("6. Generate System Reports\n");
     printf("0. Exit System\n");
-    printf("================================================================================\n");
 }
 
 /* Function to display product management menu */
 void displayProductMenu(void) {
-    printf("================================================================================\n");
-    printf("                        PRODUCT MANAGEMENT MENU                                \n");
-    printf("================================================================================\n");
-    printf("1. Add New Product\n");
-    printf("2. Update Product Information\n");
-    printf("3. Delete Product\n");
-    printf("4. View Product Details\n");
-    printf("5. View All Products\n");
+    printf("\n--- Product Menu ---\n");
+    printf("1. Add Product\n");
+    printf("2. View All Products\n");
+    printf("3. View Product Details\n");
+    printf("4. Update Product\n");
+    printf("5. Delete Product\n");
     printf("0. Back to Main Menu\n");
-    printf("================================================================================\n");
 }
 
 /* Function to handle main menu choices */
@@ -89,12 +78,9 @@ void handleMainMenuChoice(int choice) {
             do {
                 clearScreen();
                 displayProductMenu();
-                choice = getValidInteger("Enter your choice: ", 0, 5);
+                printf("Select: ");
+                scanf("%d", &choice);
                 handleProductMenuChoice(choice);
-                
-                if (choice != 0) {
-                    pauseProgram();
-                }
                 
             } while (choice != 0);
             break;
@@ -110,6 +96,7 @@ void handleMainMenuChoice(int choice) {
             printf("- View current inventory levels\n");
             printf("- Low stock alerts and threshold management\n");
             inventoryManagementMenu(); /* Placeholder call */
+            pause();
             break;
             
         case 3:
@@ -123,6 +110,7 @@ void handleMainMenuChoice(int choice) {
             printf("- View category and supplier details\n");
             printf("- Category/supplier filtering and reporting\n");
             categorySupplierMenu(); /* Placeholder call */
+            pause();
             break;
             
         case 4:
@@ -136,6 +124,7 @@ void handleMainMenuChoice(int choice) {
             printf("- View user details and transaction history\n");
             printf("- User authentication and access control\n");
             userTransactionMenu(); /* Placeholder call */
+            pause();
             break;
             
         case 5:
@@ -148,6 +137,7 @@ void handleMainMenuChoice(int choice) {
             printf("- File integrity checks\n");
             printf("- Data import/export capabilities\n");
             fileOperationsMenu(); /* Placeholder call */
+            pause();
             break;
             
         case 6:
@@ -156,6 +146,7 @@ void handleMainMenuChoice(int choice) {
             printf("Generating comprehensive system reports...\n");
             printf("This will integrate data from all modules.\n");
             generateReports(); /* Placeholder call */
+            pause();
             break;
             
         case 0:
@@ -163,7 +154,8 @@ void handleMainMenuChoice(int choice) {
             break;
             
         default:
-            printf("Invalid choice! Please try again.\n");
+            printf("Invalid option. Please choose a number between 0 and 6.\n");
+            pause();
             break;
     }
 }
@@ -176,19 +168,19 @@ void handleProductMenuChoice(int choice) {
             break;
             
         case 2:
-            updateProduct();
+            viewProducts();
             break;
             
         case 3:
-            deleteProduct();
-            break;
-            
-        case 4:
             viewProduct();
             break;
             
+        case 4:
+            updateProduct();
+            break;
+            
         case 5:
-            viewAllProducts();
+            deleteProduct();
             break;
             
         case 0:
@@ -196,7 +188,8 @@ void handleProductMenuChoice(int choice) {
             break;
             
         default:
-            printf("Invalid choice! Please try again.\n");
+            printf("Invalid option. Please choose a number between 0 and 5.\n");
+            pause();
             break;
     }
 }
@@ -212,12 +205,6 @@ void displayExitMessage(void) {
     printf("================================================================================\n");
     printf("                              Have a great day!                                \n");
     printf("================================================================================\n");
-}
-
-/* Function to pause program execution */
-void pauseProgram(void) {
-    printf("\nPress Enter to continue...");
-    getchar();
 }
 
 /* Function to clear screen */
@@ -252,5 +239,5 @@ void fileOperationsMenu(void) {
 void generateReports(void) {
     printf("Comprehensive reporting will be available once all modules are integrated.\n");
     printf("Current available data:\n");
-    viewAllProducts(); /* Show current product data as a basic report */
+    viewProducts(); /* Show current product data as a basic report */
 }

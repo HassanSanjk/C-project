@@ -4,34 +4,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* Symbolic Constants */
 #define MAX_PRODUCT_NAME 50
-#define MAX_DESCRIPTION 100
-#define MAX_SUPPLIER_NAME 50
 #define PRODUCT_FILE "products.txt"
-#define MAX_PRODUCTS 1000
-#define MIN_PRICE 0.01
-#define MAX_PRICE 99999.99
+#define CATEGORY_FILE "category.txt"
+#define SUPPLIER_FILE "suppliers.txt"
 
-/* Product Status Enumeration */
-typedef enum {
-    ACTIVE = 1,
-    DISCONTINUED = 0
-} ProductStatus;
-
-/* Product Structure */
+/* Product Structure - Matching your friend's format */
 typedef struct {
-    int productID;
-    char productName[MAX_PRODUCT_NAME];
-    char description[MAX_DESCRIPTION];
-    double price;
-    int categoryID;
-    int supplierID;
-    int stockQuantity;
-    int minStockLevel;
-    ProductStatus status;
-    char dateAdded[11]; // Format: YYYY-MM-DD
+    char id[10];        // Format: P00001
+    char name[50];      // Product name
+    char category[10];  // Category ID: C00001
+    char supplierID[10]; // Supplier ID: S00001
+    int quantity;       // Stock quantity
+    float price;        // Product price
 } Product;
 
 /* Function Prototypes */
@@ -39,18 +27,11 @@ void addProduct(void);
 void updateProduct(void);
 void deleteProduct(void);
 void viewProduct(void);
-void viewAllProducts(void);
-int validateProductData(Product *product);
-int generateProductID(void);
-int findProductByID(int productID, Product *product);
-void displayProductHeader(void);
-void displayProduct(const Product *product);
-int saveProductToFile(const Product *product);
-int loadProductsFromFile(void);
-void getCurrentDate(char *date);
-void clearInputBuffer(void);
-int getValidInteger(const char *prompt, int min, int max);
-double getValidDouble(const char *prompt, double min, double max);
-void getValidString(const char *prompt, char *str, int maxLen);
+void viewProducts(void);
+void pause(void);
+int existsInFile(const char *filename, const char *targetID);
+int isValidProductID(const char *id);
+int isValidCategoryID(const char *id);
+int isValidSupplierID(const char *id);
 
 #endif /* PRODUCT_H */
