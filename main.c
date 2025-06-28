@@ -11,6 +11,8 @@
 /* Function prototypes for menu system */
 void displayMainMenu(void);
 void displayProductMenu(void);
+void displayCategoryMenu(void);
+void handleCategoryMenuChoice(int choice);
 void displaySupplierMenu(void);
 void displayInventoryMenu(void);
 void displayUserTransactionMenu(void);  // Updated function name
@@ -100,6 +102,17 @@ void displayInventoryMenu(void) {
     printf("0. Back to Main Menu\n");
 }
 
+/* Function to display category management menu */
+void displayCategoryMenu(void) {
+    printf("\n--- Category Management ---\n");
+    printf("1. Add Category\n");
+    printf("2. View All Categories\n");
+    printf("3. Update Category\n");
+    printf("4. Delete Category\n");
+    printf("5. Filter Products by Category\n");
+    printf("0. Back to Main Menu\n");
+}
+
 void displaySupplierMenu(void) {
     printf("\n--- Supplier Menu ---\n");
     printf("1. Add Supplier\n");
@@ -167,16 +180,14 @@ void handleMainMenuChoice(int choice) {
             
         case 3:
             /* Category Management - Role 3 */
-            printf("\n=== CATEGORY MANAGEMENT ===\n");
-            printf("This module will be implemented by Role 3 team member.\n");
-            printf("Features will include:\n");
-            printf("- Add new categories\n");
-            printf("- Update category information\n");
-            printf("- Delete categories\n");
-            printf("- View category details\n");
-            printf("- Category filtering and reporting\n");
-            categoryManagementMenu(); /* Placeholder call */
-            pause();
+            do {
+                clearScreen();
+                displayCategoryMenu();
+                printf("Select: ");
+                scanf("%d", &choice);
+                handleCategoryMenuChoice(choice);
+                
+            } while (choice != 0);
             break;
             
         case 4:
@@ -303,6 +314,59 @@ void handleUserTransactionMenuChoice(int choice) {
             
         default:
             printf("Invalid option. Please choose a number between 0 and 2.\n");
+            pause();
+            break;
+    }
+}
+
+/* Function to handle category menu choices */
+void handleCategoryMenuChoice(int choice) {
+    int categoryID;
+    
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD CATEGORY ===\n");
+            addCategory();
+            printf("Category added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL CATEGORIES ===\n");
+            viewCategories();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE CATEGORY ===\n");
+            updateCategory();
+            printf("Category update completed!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== DELETE CATEGORY ===\n");
+            deleteCategory();
+            printf("Category deletion completed!\n");
+            pause();
+            break;
+            
+        case 5:
+            printf("\n=== FILTER PRODUCTS BY CATEGORY ===\n");
+            printf("Enter Category ID: ");
+            scanf("%d", &categoryID);
+            printf("\nProducts in Category ID %d:\n", categoryID);
+            printf("----------------------------------------\n");
+            filterProductsByCategory(categoryID);
+            pause();
+            break;
+            
+        case 0:
+            /* Back to main menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 5.\n");
             pause();
             break;
     }
