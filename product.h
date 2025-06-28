@@ -26,6 +26,9 @@ typedef struct {
 void addProduct(void);
 void updateProduct(void);
 void deleteProduct(void);
+void displayProductMenu(void);
+void handleProductMenuChoice(int choice);
+void productManagementMenu(void);
 void viewProduct(void);
 void viewProducts(void);
 void pause(void);

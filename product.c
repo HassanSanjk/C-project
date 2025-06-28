@@ -1,4 +1,5 @@
 #include "product.h"
+#include "utils.h"
 
 // Check if an ID exists in a file (generic) - from your friend's code
 int existsInFile(const char *filename, const char *targetID) {
@@ -444,4 +445,76 @@ void deleteProduct() {
     } else {
         printf("Product not found.\n");
     }
+}
+
+/* Function to display product management menu */
+void displayProductMenu(void) {
+    printf("\n--- Product Management ---\n");
+    printf("1. Add Product\n");
+    printf("2. View All Products\n");
+    printf("3. View Product Details\n");
+    printf("4. Update Product\n");
+    printf("5. Delete Product\n");
+    printf("0. Back to Main Menu\n");
+}
+
+/* Function to handle product menu choices */
+void handleProductMenuChoice(int choice) {
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD PRODUCT ===\n");
+            addProduct();
+            printf("Product added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL PRODUCTS ===\n");
+            viewProducts();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== PRODUCT DETAILS ===\n");
+            viewProduct();
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== UPDATE PRODUCT ===\n");
+            updateProduct();
+            printf("Product updated successfully!\n");
+            pause();
+            break;
+            
+        case 5:
+            printf("\n=== DELETE PRODUCT ===\n");
+            deleteProduct();
+            printf("Product deletion completed!\n");
+            pause();
+            break;
+            
+        case 0:
+            /* Back to main menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 5.\n");
+            pause();
+            break;
+    }
+}
+
+/* Main product management menu function */
+void productManagementMenu(void) {
+    int choice;
+    
+    do {
+        clearScreen();
+        displayProductMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleProductMenuChoice(choice);
+        
+    } while (choice != 0);
 }

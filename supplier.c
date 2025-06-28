@@ -2,6 +2,87 @@
 #include <stdlib.h>
 #include <string.h>
 #include "supplier.h"
+#include "utils.h"
+
+
+/* Function to display supplier management menu */
+void displaySupplierMenu(void) {
+    printf("\n--- Supplier Management ---\n");
+    printf("1. Add Supplier\n");
+    printf("2. View All Suppliers\n");
+    printf("3. Update Supplier\n");
+    printf("4. Delete Supplier\n");
+    printf("5. Filter Products by Supplier\n");
+    printf("0. Back to Main Menu\n");
+}
+
+/* Function to handle supplier menu choices */
+void handleSupplierMenuChoice(int choice) {
+    int supplierID;
+    
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD SUPPLIER ===\n");
+            addSupplier();
+            printf("Supplier added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL SUPPLIERS ===\n");
+            viewSuppliers();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE SUPPLIER ===\n");
+            updateSupplier();
+            printf("Supplier updated successfully!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== DELETE SUPPLIER ===\n");
+            deleteSupplier();
+            printf("Supplier deletion completed!\n");
+            pause();
+            break;
+            
+        case 5:
+            printf("\n=== FILTER PRODUCTS BY SUPPLIER ===\n");
+            printf("Enter Supplier ID: ");
+            scanf("%d", &supplierID);
+            printf("\nProducts from Supplier ID %d:\n", supplierID);
+            printf("----------------------------------------\n");
+            filterProductsBySupplier(supplierID);
+            pause();
+            break;
+            
+        case 0:
+            /* Back to main menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 5.\n");
+            pause();
+            break;
+    }
+}
+
+/* Main supplier management menu function */
+void supplierManagementMenu(void) {
+    int choice;
+    
+    do {
+        clearScreen();
+        displaySupplierMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleSupplierMenuChoice(choice);
+        
+    } while (choice != 0);
+}
+
 
 void addSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "a");

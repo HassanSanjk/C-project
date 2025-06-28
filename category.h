@@ -16,5 +16,8 @@ void viewCategories();
 void updateCategory();
 void deleteCategory();
 void filterProductsByCategory(int);
+void displayCategoryMenu(void);
+void handleCategoryMenuChoice(int choice);
+void categoryManagementMenu(void);
 
 #endif

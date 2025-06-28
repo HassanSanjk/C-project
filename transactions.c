@@ -3,23 +3,74 @@
 #include <string.h>
 #include <ctype.h>
 #include "utils.h"
+#include "transactions.h"
 
-typedef struct {
-    char id[10];
-    char name[50];
-    char category[30];
-    char supplierID[10];
-    int quantity;
-    float price;
-} Product;
 
-typedef struct {
-    char transactionID[15];
-    char productID[10];
-    int quantity;
-    char date[20]; // YYYY-MM-DD
-    float totalPrice;
-} Transaction;
+/* NEW: Function to display transaction management submenu */
+void displayTransactionMenu(void) {
+    printf("\n--- Transaction Management ---\n");
+    printf("1. Add Transaction\n");
+    printf("2. View All Transactions\n");
+    printf("3. Update Transaction\n");
+    printf("4. Delete Transaction\n");
+    printf("0. Back to User & Transaction Menu\n");
+}
+
+/* NEW: Function to handle transaction menu choices */
+void handleTransactionMenuChoice(int choice) {
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD TRANSACTION ===\n");
+            addTransaction();
+            printf("Transaction processing completed!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL TRANSACTIONS ===\n");
+            viewTransactions();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE TRANSACTION ===\n");
+            updateTransaction();
+            printf("Transaction update completed!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== DELETE TRANSACTION ===\n");
+            deleteTransaction();
+            printf("Transaction deletion completed!\n");
+            pause();
+            break;
+            
+        case 0:
+            /* Back to user & transaction menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 4.\n");
+            pause();
+            break;
+    }
+}
+
+/* Main transactions management menu function */
+void transactionManagementMenu(void) {
+    int choice;
+    
+    do {
+        clearScreen();
+        displayTransactionMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleTransactionMenuChoice(choice);
+        
+    } while (choice != 0);
+}
+
 
 int isValidTransactionID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'T') return 0;

@@ -3,6 +3,9 @@
         "supplier.h": "c",
         "ctype.h": "c",
         "utils.h": "c",
-        "product.h": "c"
+        "product.h": "c",
+        "advance.h": "c",
+        "stdio.h": "c",
+        "transactions.h": "c"
     }
 }

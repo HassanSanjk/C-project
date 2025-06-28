@@ -27,5 +27,8 @@ void freeInventoryList(InventoryNode *head);
 void generateInventoryReport(InventoryNode *head);
 void showLowStockOnly(InventoryNode *head);
 void inventoryMenu(void);
+void displayInventoryMenu(void);
+void handleInventoryMenuChoice(int choice);
+void inventoryManagementMenu(void);
 
 #endif

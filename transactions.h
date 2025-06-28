@@ -25,5 +25,8 @@ void viewTransactions(void);
 void updateTransaction(void);
 void deleteTransaction(void);
 void transactionMenu(void);
+void displayTransactionMenu(void);
+void handleTransactionMenuChoice(int choice);
+void transactionManagementMenu(void);
 
 #endif // TRANSACTIONS_H

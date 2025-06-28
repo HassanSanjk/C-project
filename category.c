@@ -2,6 +2,85 @@
 #include <stdlib.h>
 #include <string.h>
 #include "category.h"
+#include "utils.h"
+
+/* Function to display category management menu */
+void displayCategoryMenu(void) {
+    printf("\n--- Category Management ---\n");
+    printf("1. Add Category\n");
+    printf("2. View All Categories\n");
+    printf("3. Update Category\n");
+    printf("4. Delete Category\n");
+    printf("5. Filter Products by Category\n");
+    printf("0. Back to Main Menu\n");
+}
+
+/* Function to handle category menu choices */
+void handleCategoryMenuChoice(int choice) {
+    int categoryID;
+    
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD CATEGORY ===\n");
+            addCategory();
+            printf("Category added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL CATEGORIES ===\n");
+            viewCategories();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE CATEGORY ===\n");
+            updateCategory();
+            printf("Category update completed!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== DELETE CATEGORY ===\n");
+            deleteCategory();
+            printf("Category deletion completed!\n");
+            pause();
+            break;
+            
+        case 5:
+            printf("\n=== FILTER PRODUCTS BY CATEGORY ===\n");
+            printf("Enter Category ID: ");
+            scanf("%d", &categoryID);
+            printf("\nProducts in Category ID %d:\n", categoryID);
+            printf("----------------------------------------\n");
+            filterProductsByCategory(categoryID);
+            pause();
+            break;
+            
+        case 0:
+            /* Back to main menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 5.\n");
+            pause();
+            break;
+    }
+}
+
+/* Main category management menu function */
+void categoryManagementMenu(void) {
+    int choice;
+    
+    do {
+        clearScreen();
+        displayCategoryMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleCategoryMenuChoice(choice);
+        
+    } while (choice != 0);
+}
 
 void addCategory() {
     FILE *fp = fopen(CATEGORY_FILE, "a");

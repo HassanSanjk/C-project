@@ -24,5 +24,8 @@ void viewUsers(void);
 void updateUser(void);
 void deleteUser(void);
 void userMenu(void);
+void displayUserMenu(void);
+void handleUserMenuChoice(int choice);
+void userManagementMenu(void);
 
 #endif // USERS_H

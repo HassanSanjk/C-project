@@ -17,5 +17,8 @@ void viewSuppliers();
 void updateSupplier();
 void deleteSupplier();
 void filterProductsBySupplier(int);
+void displaySupplierMenu(void);
+void handleSupplierMenuChoice(int choice);
+void supplierManagementMenu(void);
 
 #endif

@@ -7,6 +7,101 @@
 #include "utils.h"
 
 
+
+/* Function to display inventory management menu */
+void displayInventoryMenu(void) {
+    printf("\n--- Inventory Menu ---\n");
+    printf("1. Add Inventory Item\n");
+    printf("2. View All Inventory\n");
+    printf("3. Update Inventory Item\n");
+    printf("4. Remove Inventory Item\n");
+    printf("5. View Low Stock Items\n");
+    printf("6. Generate Inventory Report\n");
+    printf("0. Back to Main Menu\n");
+}
+
+void handleInventoryMenuChoice(int choice) {
+    static InventoryNode *inventoryList = NULL;
+    
+    // Load inventory on first access
+    if (inventoryList == NULL && choice > 0 && choice < 7) {
+        inventoryList = loadInventoryFromFile();
+    }
+    
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD INVENTORY ITEM ===\n");
+            addInventoryItem(&inventoryList);
+            saveInventoryToFile(inventoryList);
+            printf("Inventory item added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL INVENTORY ITEMS ===\n");
+            viewInventory(inventoryList);
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE INVENTORY ITEM ===\n");
+            updateInventoryItem(inventoryList);
+            saveInventoryToFile(inventoryList);
+            printf("Inventory item updated successfully!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== REMOVE INVENTORY ITEM ===\n");
+            removeInventoryItem(&inventoryList);
+            saveInventoryToFile(inventoryList);
+            printf("Inventory item removed successfully!\n");
+            pause();
+            break;
+            
+        case 5:
+            printf("\n=== LOW STOCK ITEMS ===\n");
+            showLowStockOnly(inventoryList);
+            pause();
+            break;
+            
+        case 6:
+            printf("\n=== INVENTORY REPORT ===\n");
+            generateInventoryReport(inventoryList);
+            pause();
+            break;
+            
+        case 0:
+            /* Save and free memory before returning to main menu */
+            if (inventoryList != NULL) {
+                saveInventoryToFile(inventoryList);
+                freeInventoryList(inventoryList);
+                inventoryList = NULL;
+            }
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 6.\n");
+            pause();
+            break;
+    }
+}
+
+/* Main inventory management menu function */
+void inventoryManagementMenu(void) {
+    int choice;
+    
+    do {
+        clearScreen();
+        displayInventoryMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleInventoryMenuChoice(choice);
+        
+    } while (choice != 0);
+}
+
+
 // Inventory Struct
 typedef struct {
     char productID[10];

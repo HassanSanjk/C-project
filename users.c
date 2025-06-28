@@ -3,16 +3,72 @@
 #include <string.h>
 #include <ctype.h>
 #include "utils.h"
+#include "users.h"
 
 // === User Management ===
+/* Function to display user management submenu */
+void displayUserMenu(void) {
+    printf("\n--- User Management ---\n");
+    printf("1. Add User\n");
+    printf("2. View All Users\n");
+    printf("3. Update User\n");
+    printf("4. Delete User\n");
+    printf("0. Back to User & Transaction Menu\n");
+}
 
-typedef struct {
-    char userID[10];
-    char firstName[30];
-    char lastName[30];
-    char contact[15];
-} User;
+/* Function to handle user menu choices */
+void handleUserMenuChoice(int choice) {
+    switch (choice) {
+        case 1:
+            printf("\n=== ADD USER ===\n");
+            addUser();
+            printf("User added successfully!\n");
+            pause();
+            break;
+            
+        case 2:
+            printf("\n=== ALL USERS ===\n");
+            viewUsers();
+            pause();
+            break;
+            
+        case 3:
+            printf("\n=== UPDATE USER ===\n");
+            updateUser();
+            printf("User updated successfully!\n");
+            pause();
+            break;
+            
+        case 4:
+            printf("\n=== DELETE USER ===\n");
+            deleteUser();
+            printf("User deletion completed!\n");
+            pause();
+            break;
+            
+        case 0:
+            /* Back to user & transaction menu - handled in loop */
+            break;
+            
+        default:
+            printf("Invalid option. Please choose a number between 0 and 4.\n");
+            pause();
+            break;
+    }
+}
 
+/* Main users management menu function */
+void userManagementMenu(void) {
+    int choice;
+    do {
+        clearScreen();
+        displayUserMenu();
+        printf("Select: ");
+        scanf("%d", &choice);
+        handleUserMenuChoice(choice);
+        
+    } while (choice != 0);
+}
 
 int isValidUserID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'U') return 0;
