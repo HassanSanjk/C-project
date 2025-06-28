@@ -23,5 +23,6 @@ void addUser(void);
 void viewUsers(void);
 void updateUser(void);
 void deleteUser(void);
+void userMenu(void);
 
 #endif // USERS_H

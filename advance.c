@@ -2,12 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "utils.h"
 
-void pause() {
-    printf("Press Enter to continue...");
-    while (getchar() != '\n');
-    getchar();
-}
 
 // 1. Low Stock Alert (less than 5)
 void lowStockAlert() {
@@ -138,8 +134,7 @@ void supplierEmailFinder() {
     pause();
 }
 
-// === MAIN MENU ===
-int main() {
+void advancedFeaturesMenu() {
     int choice;
     do {
         printf("\n--- Advanced Features Menu ---\n");
@@ -162,6 +157,4 @@ int main() {
             default: printf("Invalid choice.\n"); pause(); break;
         }
     } while (choice != 0);
-
-    return 0;
 }

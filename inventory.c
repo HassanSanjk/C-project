@@ -1,18 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "inventory.h"
 #include <ctype.h>
+#include "inventory.h"
+#include "product.h"
+#include "utils.h"
 
-// Product Struct
-typedef struct {
-    char id[10];
-    char name[50];
-    char category[30];
-    char supplierID[10];
-    int quantity;
-    float price;
-} Product;
 
 // Inventory Struct
 typedef struct {
@@ -22,46 +15,6 @@ typedef struct {
     char action[4]; // IN or OUT
 } InventoryRecord;
 
-// Pause function
-void pause() {
-    printf("Press Enter to continue...");
-    while (getchar() != '\n');
-    getchar();
-}
-
-// Check if product ID exists in file
-int existsInFile(const char *filename, const char *targetID) {
-    FILE *fp = fopen(filename, "r");
-    if (!fp) return 0;
-    char line[256], id[20];
-    while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]", id);
-        if (strcmp(id, targetID) == 0) {
-            fclose(fp);
-            return 1;
-        }
-    }
-    fclose(fp);
-    return 0;
-}
-
-// Validate Product ID: Must be P + 5 digits
-int isValidProductID(const char *id) {
-    if (strlen(id) != 6 || id[0] != 'P') return 0;
-    for (int i = 1; i < 6; i++) {
-        if (!isdigit(id[i])) return 0;
-    }
-    return 1;
-}
-
-// Validate date in YYYY-MM-DD and year ≥ 2025
-int isValidDate(const char *date) {
-    if (strlen(date) != 10) return 0;
-    int year, month, day;
-    if (sscanf(date, "%4d-%2d-%2d", &year, &month, &day) != 3) return 0;
-    if (year < 2025 || month < 1 || month > 12 || day < 1 || day > 31) return 0;
-    return 1;
-}
 
 // Add Inventory Record
 void addInventoryRecord() {
@@ -241,8 +194,7 @@ void deleteInventoryRecord() {
 }
 
 
-// === Main Menu ===
-int main() {
+void inventoryMenu() {
     int choice;
     do {
         printf("\n--- Inventory Menu ---\n");
@@ -260,12 +212,11 @@ int main() {
             case 3: updateInventoryRecord(); break;
             case 4: deleteInventoryRecord(); break;
             case 0: printf("Exiting Inventory Menu.\n"); break;
-            default: printf("Invalid option. Please choose a number between 0 and 4.\n"); pause(); break;
+            default: printf("Invalid option. Please choose 0–4.\n"); pause(); break;
         }
     } while (choice != 0);
-
-    return 0;
 }
+
 
 
 
@@ -513,4 +464,12 @@ void sortInventoryByQuantity(InventoryNode **head) {
     }
 
     printf("Inventory sorted by quantity.\n");
+}
+
+void showLowStockOnly(InventoryNode *list) {
+    printf("Low stock feature coming soon...\n");
+}
+
+void generateInventoryReport(InventoryNode *list) {
+    printf("Report generation feature coming soon...\n");
 }

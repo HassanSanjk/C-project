@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "utils.h"
 
 typedef struct {
     char id[10];
@@ -20,24 +21,12 @@ typedef struct {
     float totalPrice;
 } Transaction;
 
-void pause() {
-    printf("Press Enter to continue...");
-    while (getchar() != '\n');
-    getchar();
-}
-
 int isValidTransactionID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'T') return 0;
     for (int i = 1; i < 6; i++) {
         if (!isdigit(id[i])) return 0;
     }
     return 1;
-}
-
-int isValidDate(const char *date) {
-    int year, month, day;
-    if (sscanf(date, "%4d-%2d-%2d", &year, &month, &day) != 3) return 0;
-    return year >= 2020 && month >= 1 && month <= 12 && day >= 1 && day <= 31;
 }
 
 int transactionExists(const char *transactionID) {
@@ -282,7 +271,7 @@ void deleteTransaction() {
 }
 
 
-int main() {
+void transactionMenu() {
     int choice;
     do {
         printf("\n--- Transaction Menu ---\n");
@@ -293,7 +282,7 @@ int main() {
         printf("0. Exit\n");
         printf("Select: ");
         scanf("%d", &choice);
-        while (getchar() != '\n'); // flush input
+        while (getchar() != '\n');
 
         switch (choice) {
             case 1: addTransaction(); break;
@@ -301,9 +290,7 @@ int main() {
             case 3: updateTransaction(); break;
             case 4: deleteTransaction(); break;
             case 0: printf("Exiting Transaction Menu.\n"); break;
-            default: printf("Invalid option. Please choose a number between 0 and 4.\n"); pause(); break;
+            default: printf("Invalid option. Please choose 0–4.\n"); pause(); break;
         }
     } while (choice != 0);
-
-    return 0;
 }

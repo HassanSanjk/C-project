@@ -24,5 +24,6 @@ void addTransaction(void);
 void viewTransactions(void);
 void updateTransaction(void);
 void deleteTransaction(void);
+void transactionMenu(void);
 
 #endif // TRANSACTIONS_H

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "utils.h"
 
 // === User Management ===
 
@@ -12,11 +13,6 @@ typedef struct {
     char contact[15];
 } User;
 
-void pause() {
-    printf("Press Enter to continue...");
-    while (getchar() != '\n');
-    getchar();
-}
 
 int isValidUserID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'U') return 0;
@@ -193,7 +189,9 @@ void deleteUser() {
     pause();
 }
 
-int main() {
+
+// users.c
+void userMenu() {
     int choice;
     do {
         printf("\n--- User Menu ---\n");
@@ -214,6 +212,4 @@ int main() {
             default: printf("Invalid option. Please choose a number between 0 and 4.\n"); pause(); break;
         }
     } while (choice != 0);
-
-    return 0;
 }

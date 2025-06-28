@@ -1,12 +1,5 @@
 #include "product.h"
 
-// Pause function - taken from your friend's code
-void pause() {
-    printf("Press Enter to continue...");
-    while (getchar() != '\n'); // Flush leftover input
-    getchar(); // Wait for real Enter
-}
-
 // Check if an ID exists in a file (generic) - from your friend's code
 int existsInFile(const char *filename, const char *targetID) {
     FILE *fp = fopen(filename, "r");

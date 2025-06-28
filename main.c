@@ -6,7 +6,7 @@
 #include "advance.h"
 #include "inventory.h"
 #include "users.h"
-#include "transactions.h"  // Add this include for transaction functionality
+#include "transactions.h"
 
 /* Function prototypes for menu system */
 void displayMainMenu(void);
