@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/supplier.h"
+#include "supplier.h"
 
 void addSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "a");
@@ -67,16 +67,28 @@ void deleteSupplier() {
 
 void filterProductsBySupplier(int supplierID) {
     FILE *fp = fopen(PRODUCT_FILE, "r");
+    if (fp == NULL) {
+        perror("Failed to open product file");
+        return;
+    }
     Product p;
     char line[256];
     int found = 0;
+    // Format the supplier ID string (e.g., 1 → "S00001")
+    char supplierIDStr[10];
+    snprintf(supplierIDStr, sizeof(supplierIDStr), "S%05d", supplierID);
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%d|%49[^|]|%d|%d|%f|%d", &p.productID, p.name, &p.categoryID, &p.supplierID, &p.price, &p.quantity);
-        if (p.supplierID == supplierID) {
-            printf("ID: %d | Name: %s | Price: %.2f | Qty: %d\n", p.productID, p.name, p.price, p.quantity);
-            found = 1;
+        if (sscanf(line, "%9[^|]|%49[^|]|%9[^|]|%9[^|]|%f|%d",
+                   p.id, p.name, p.category, p.supplierID, &p.price, &p.quantity) == 6) {
+            if (strcmp(p.supplierID, supplierIDStr) == 0) {
+                printf("ID: %s | Name: %s | Price: %.2f | Qty: %d\n",
+                       p.id, p.name, p.price, p.quantity);
+                found = 1;
+            }
         }
     }
-    if (!found) printf("No products found.\n");
+    if (!found) {
+        printf("No products found for supplier %s.\n", supplierIDStr);
+    }
     fclose(fp);
 }

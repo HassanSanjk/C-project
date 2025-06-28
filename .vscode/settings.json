@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "supplier.h": "c",
+        "ctype.h": "c"
+    }
+}

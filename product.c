@@ -48,6 +48,60 @@ int isValidSupplierID(const char *id) {
     return 1;
 }
 
+// Input buffer clearing function
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+// Safe string input function
+void getStringInput(char *buffer, int size, const char *prompt) {
+    printf("%s", prompt);
+    if (fgets(buffer, size, stdin) != NULL) {
+        // Remove newline if present
+        size_t len = strlen(buffer);
+        if (len > 0 && buffer[len-1] == '\n') {
+            buffer[len-1] = '\0';
+        }
+    }
+}
+
+// Safe integer input function
+int getIntInput(const char *prompt, int min, int max) {
+    int value;
+    char buffer[100];
+    
+    while (1) {
+        printf("%s", prompt);
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (sscanf(buffer, "%d", &value) == 1) {
+                if (value >= min && value <= max) {
+                    return value;
+                }
+            }
+        }
+        printf("Invalid input. Please enter a number between %d and %d.\n", min, max);
+    }
+}
+
+// Safe float input function
+float getFloatInput(const char *prompt, float min) {
+    float value;
+    char buffer[100];
+    
+    while (1) {
+        printf("%s", prompt);
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (sscanf(buffer, "%f", &value) == 1) {
+                if (value >= min) {
+                    return value;
+                }
+            }
+        }
+        printf("Invalid input. Please enter a number greater than %.2f.\n", min);
+    }
+}
+
 // Add Product - Enhanced version of your friend's code
 void addProduct() {
     Product p;
@@ -56,84 +110,62 @@ void addProduct() {
     printf("\n=== ADD NEW PRODUCT ===\n");
     
     // Product ID validation
-    printf("Enter Product ID (e.g., P00001): ");
-    scanf("%s", idInput);
+    getStringInput(idInput, sizeof(idInput), "Enter Product ID (e.g., P00001): ");
     
     if (!isValidProductID(idInput)) {
         printf("Invalid Product ID format. Must start with 'P' followed by 5 digits.\n");
-        pause();
         return;
     }
     
     if (existsInFile(PRODUCT_FILE, idInput)) {
         printf("Product ID already exists.\n");
-        pause();
         return;
     }
     strcpy(p.id, idInput);
 
     // Product name
-    printf("Enter Product Name: ");
-    scanf(" %[^\n]", p.name);
+    getStringInput(p.name, sizeof(p.name), "Enter Product Name: ");
     if (strlen(p.name) == 0) {
         printf("Product name cannot be empty.\n");
-        pause();
         return;
     }
 
     // Category ID validation
-    printf("Enter Category ID (e.g., C00001): ");
-    scanf("%s", p.category);
+    getStringInput(p.category, sizeof(p.category), "Enter Category ID (e.g., C00001): ");
     
     if (!isValidCategoryID(p.category)) {
         printf("Invalid Category ID format. Must start with 'C' followed by 5 digits.\n");
-        pause();
         return;
     }
     
     if (!existsInFile(CATEGORY_FILE, p.category)) {
-        printf("Category ID does not exist. Please add the category first.\n");
-        pause();
-        return;
+        printf("Warning: Category ID does not exist. Creating product anyway.\n");
+        printf("Note: Please ensure the category exists for proper referential integrity.\n");
     }
 
     // Supplier ID validation
-    printf("Enter Supplier ID (e.g., S00001): ");
-    scanf("%s", p.supplierID);
+    getStringInput(p.supplierID, sizeof(p.supplierID), "Enter Supplier ID (e.g., S00001): ");
     
     if (!isValidSupplierID(p.supplierID)) {
         printf("Invalid Supplier ID format. Must start with 'S' followed by 5 digits.\n");
-        pause();
         return;
     }
     
     if (!existsInFile(SUPPLIER_FILE, p.supplierID)) {
-        printf("Supplier ID does not exist. Please add the supplier first.\n");
-        pause();
-        return;
+        printf("Warning: Supplier ID does not exist. Creating product anyway.\n");
+        printf("Note: Please ensure the supplier exists for proper referential integrity.\n");
     }
 
     // Quantity validation
-    printf("Enter Quantity: ");
-    if (scanf("%d", &p.quantity) != 1 || p.quantity <= 0) {
-        printf("Invalid quantity. Must be a positive number.\n");
-        pause();
-        return;
-    }
+    p.quantity = getIntInput("Enter Quantity: ", 0, 999999);
 
     // Price validation
-    printf("Enter Price (RM): ");
-    if (scanf("%f", &p.price) != 1 || p.price <= 0) {
-        printf("Invalid price. Must be a positive number.\n");
-        pause();
-        return;
-    }
+    p.price = getFloatInput("Enter Price (RM): ", 0.01);
 
     // Save to file
     FILE *fp = fopen(PRODUCT_FILE, "a");
     if (!fp) {
         printf("Error opening product file.\n");
-        pause();
         return;
     }
 
@@ -143,7 +175,10 @@ void addProduct() {
     printf("\nProduct added successfully!\n");
     printf("Product ID: %s\n", p.id);
     printf("Product Name: %s\n", p.name);
-    pause();
+    printf("Category: %s\n", p.category);
+    printf("Supplier: %s\n", p.supplierID);
+    printf("Quantity: %d\n", p.quantity);
+    printf("Price: RM%.2f\n", p.price);
 }
 
 // View All Products - Enhanced version
@@ -151,7 +186,7 @@ void viewProducts() {
     FILE *fp = fopen(PRODUCT_FILE, "r");
     if (!fp) {
         printf("Cannot open product file or no products exist yet.\n");
-        pause();
+        printf("Note: File '%s' will be created when you add your first product.\n", PRODUCT_FILE);
         return;
     }
 
@@ -176,22 +211,23 @@ void viewProducts() {
     }
     
     printf("================================================================================\n");
-    printf("Total Products: %d\n", count);
+    if (count == 0) {
+        printf("No products found in the database.\n");
+    } else {
+        printf("Total Products: %d\n", count);
+    }
     fclose(fp);
-    pause();
 }
 
 // View Single Product
 void viewProduct() {
     char targetID[10];
     printf("\n=== VIEW PRODUCT DETAILS ===\n");
-    printf("Enter Product ID: ");
-    scanf("%s", targetID);
+    getStringInput(targetID, sizeof(targetID), "Enter Product ID: ");
 
     FILE *fp = fopen(PRODUCT_FILE, "r");
     if (!fp) {
-        printf("Cannot open product file.\n");
-        pause();
+        printf("Cannot open product file or no products exist yet.\n");
         return;
     }
 
@@ -218,30 +254,33 @@ void viewProduct() {
         printf("Supplier ID: %s\n", p.supplierID);
         printf("Quantity: %d\n", p.quantity);
         printf("Price: RM%.2f\n", p.price);
+        printf("Total Value: RM%.2f\n", p.quantity * p.price);
         
         // Low stock warning
         if (p.quantity <= 10) {
             printf("\n*** LOW STOCK WARNING! ***\n");
         }
     } else {
-        printf("Product with ID %s not found.\n", targetID);
+        printf("Product with ID '%s' not found.\n", targetID);
     }
-    
-    pause();
 }
 
 // Update Product - Enhanced version of your friend's code
 void updateProduct() {
     char targetID[10];
     printf("\n=== UPDATE PRODUCT ===\n");
-    printf("Enter Product ID to update: ");
-    scanf("%s", targetID);
+    getStringInput(targetID, sizeof(targetID), "Enter Product ID to update: ");
 
     FILE *fp = fopen(PRODUCT_FILE, "r");
     FILE *temp = fopen("temp.txt", "w");
-    if (!fp || !temp) {
-        printf("Error opening files.\n");
-        pause();
+    if (!fp) {
+        printf("Cannot open product file or no products exist yet.\n");
+        if (temp) fclose(temp);
+        return;
+    }
+    if (!temp) {
+        printf("Error creating temporary file.\n");
+        fclose(fp);
         return;
     }
 
@@ -260,70 +299,68 @@ void updateProduct() {
                 printf("ID: %s | Name: %s | Category: %s | Supplier: %s | Qty: %d | Price: RM%.2f\n",
                        p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
                 
-                printf("\nEnter new details:\n");
+                printf("\nEnter new details (or press Enter to keep current value):\n");
                 
                 // Update name
+                char tempInput[100];
                 printf("New Product Name (current: %s): ", p.name);
-                scanf(" %[^\n]", p.name);
-                if (strlen(p.name) == 0) {
-                    printf("Product name cannot be empty.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
+                if (fgets(tempInput, sizeof(tempInput), stdin) && strlen(tempInput) > 1) {
+                    tempInput[strlen(tempInput)-1] = '\0'; // Remove newline
+                    if (strlen(tempInput) > 0) {
+                        strcpy(p.name, tempInput);
+                    }
                 }
 
                 // Update category
                 printf("New Category ID (current: %s): ", p.category);
-                scanf("%s", p.category);
-                if (!isValidCategoryID(p.category)) {
-                    printf("Invalid Category ID format.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
-                }
-                if (!existsInFile(CATEGORY_FILE, p.category)) {
-                    printf("Category ID not found.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
+                if (fgets(tempInput, sizeof(tempInput), stdin) && strlen(tempInput) > 1) {
+                    tempInput[strlen(tempInput)-1] = '\0';
+                    if (strlen(tempInput) > 0) {
+                        if (isValidCategoryID(tempInput)) {
+                            strcpy(p.category, tempInput);
+                        } else {
+                            printf("Invalid Category ID format. Keeping current value.\n");
+                        }
+                    }
                 }
 
                 // Update supplier
                 printf("New Supplier ID (current: %s): ", p.supplierID);
-                scanf("%s", p.supplierID);
-                if (!isValidSupplierID(p.supplierID)) {
-                    printf("Invalid Supplier ID format.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
-                }
-                if (!existsInFile(SUPPLIER_FILE, p.supplierID)) {
-                    printf("Supplier ID not found.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
+                if (fgets(tempInput, sizeof(tempInput), stdin) && strlen(tempInput) > 1) {
+                    tempInput[strlen(tempInput)-1] = '\0';
+                    if (strlen(tempInput) > 0) {
+                        if (isValidSupplierID(tempInput)) {
+                            strcpy(p.supplierID, tempInput);
+                        } else {
+                            printf("Invalid Supplier ID format. Keeping current value.\n");
+                        }
+                    }
                 }
 
                 // Update quantity
                 printf("New Quantity (current: %d): ", p.quantity);
-                if (scanf("%d", &p.quantity) != 1 || p.quantity < 0) {
-                    printf("Invalid quantity. Must be a non-negative number.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
+                if (fgets(tempInput, sizeof(tempInput), stdin) && strlen(tempInput) > 1) {
+                    int newQty;
+                    if (sscanf(tempInput, "%d", &newQty) == 1 && newQty >= 0) {
+                        p.quantity = newQty;
+                    } else if (strlen(tempInput) > 1) {
+                        printf("Invalid quantity. Keeping current value.\n");
+                    }
                 }
 
                 // Update price
                 printf("New Price (current: RM%.2f): RM", p.price);
-                if (scanf("%f", &p.price) != 1 || p.price <= 0) {
-                    printf("Invalid price. Must be a positive number.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt");
-                    pause();
-                    return;
+                if (fgets(tempInput, sizeof(tempInput), stdin) && strlen(tempInput) > 1) {
+                    float newPrice;
+                    if (sscanf(tempInput, "%f", &newPrice) == 1 && newPrice > 0) {
+                        p.price = newPrice;
+                    } else if (strlen(tempInput) > 1) {
+                        printf("Invalid price. Keeping current value.\n");
+                    }
                 }
             }
+            fprintf(temp, "%s|%s|%s|%s|%d|%.2f\n", p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
         }
-        fprintf(temp, "%s|%s|%s|%s|%d|%.2f\n", p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
     }
 
     fclose(fp);
@@ -334,68 +371,64 @@ void updateProduct() {
     if (found) {
         printf("\nProduct updated successfully!\n");
     } else {
-        printf("Product with ID %s not found.\n", targetID);
+        printf("Product with ID '%s' not found.\n", targetID);
     }
-
-    pause();
 }
 
 // Delete Product - Your friend's code with enhancements
 void deleteProduct() {
     char targetID[10];
     printf("\n=== DELETE PRODUCT ===\n");
-    printf("Enter Product ID to delete: ");
-    scanf("%s", targetID);
+    getStringInput(targetID, sizeof(targetID), "Enter Product ID to delete: ");
 
     // First, show the product to be deleted
     FILE *fpView = fopen(PRODUCT_FILE, "r");
-    if (fpView) {
-        Product p;
-        char line[256];
-        int found = 0;
-        
-        while (fgets(line, sizeof(line), fpView)) {
-            if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
-                       p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
-                if (strcmp(p.id, targetID) == 0) {
-                    found = 1;
-                    printf("\nProduct to be deleted:\n");
-                    printf("ID: %s | Name: %s | Category: %s | Supplier: %s | Qty: %d | Price: RM%.2f\n",
-                           p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
-                    break;
-                }
-            }
-        }
-        fclose(fpView);
-        
-        if (!found) {
-            printf("Product with ID %s not found.\n", targetID);
-            pause();
-            return;
-        }
-        
-        // Confirmation
-        char confirm;
-        printf("\nAre you sure you want to delete this product? (y/N): ");
-        scanf(" %c", &confirm);
-        if (confirm != 'y' && confirm != 'Y') {
-            printf("Delete operation cancelled.\n");
-            pause();
-            return;
-        }
-    }
-
-    FILE *fp = fopen(PRODUCT_FILE, "r");
-    FILE *temp = fopen("temp.txt", "w");
-    if (!fp || !temp) {
-        printf("Error opening files.\n");
-        pause();
+    if (!fpView) {
+        printf("Cannot open product file or no products exist yet.\n");
         return;
     }
 
     Product p;
     char line[256];
     int found = 0;
+    
+    while (fgets(line, sizeof(line), fpView)) {
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
+                   p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
+            if (strcmp(p.id, targetID) == 0) {
+                found = 1;
+                printf("\nProduct to be deleted:\n");
+                printf("ID: %s | Name: %s | Category: %s | Supplier: %s | Qty: %d | Price: RM%.2f\n",
+                       p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
+                break;
+            }
+        }
+    }
+    fclose(fpView);
+    
+    if (!found) {
+        printf("Product with ID '%s' not found.\n", targetID);
+        return;
+    }
+    
+    // Confirmation
+    char confirm[10];
+    getStringInput(confirm, sizeof(confirm), "\nAre you sure you want to delete this product? (y/N): ");
+    if (confirm[0] != 'y' && confirm[0] != 'Y') {
+        printf("Delete operation cancelled.\n");
+        return;
+    }
+
+    FILE *fp = fopen(PRODUCT_FILE, "r");
+    FILE *temp = fopen("temp.txt", "w");
+    if (!fp || !temp) {
+        printf("Error opening files.\n");
+        if (fp) fclose(fp);
+        if (temp) fclose(temp);
+        return;
+    }
+
+    found = 0;
     
     while (fgets(line, sizeof(line), fp)) {
         if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
@@ -418,6 +451,4 @@ void deleteProduct() {
     } else {
         printf("Product not found.\n");
     }
-
-    pause();
 }

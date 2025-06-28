@@ -1,7 +1,9 @@
+#include "product.h"
+
 #ifndef CATEGORY_H
 #define CATEGORY_H
 
-#define CATEGORY_FILE "data/categories.txt"
+#define CATEGORY_FILE "categories.txt"
 
 typedef struct {
     int id;

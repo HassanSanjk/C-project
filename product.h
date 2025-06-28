@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "category.h"
 
 /* Symbolic Constants */
 #define MAX_PRODUCT_NAME 50
 #define PRODUCT_FILE "products.txt"
-#define CATEGORY_FILE "category.txt"
 #define SUPPLIER_FILE "suppliers.txt"
 
 /* Product Structure - Matching your friend's format */

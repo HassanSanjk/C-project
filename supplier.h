@@ -1,8 +1,9 @@
+#include "product.h"
+
 #ifndef SUPPLIER_H
 #define SUPPLIER_H
 
-#define SUPPLIER_FILE "data/suppliers.txt"
-#define PRODUCT_FILE "data/products.txt"
+#define SUPPLIER_FILE "suppliers.txt"
 
 typedef struct {
     int id;
@@ -10,14 +11,6 @@ typedef struct {
     char contact[100];
 } Supplier;
 
-typedef struct {
-    int productID;
-    char name[50];
-    int categoryID;
-    int supplierID;
-    float price;
-    int quantity;
-} Product;
 
 void addSupplier();
 void viewSuppliers();
