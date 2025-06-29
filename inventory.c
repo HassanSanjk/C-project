@@ -11,13 +11,13 @@ void displayInventoryMenu(void) {
     printf("\n========================================\n");
     printf("   INVENTORY & STOCK MANAGEMENT\n");
     printf("========================================\n");
-    printf("| 1. Add Inventory Record          |\n");
-    printf("| 2. View All Inventory Records    |\n");
-    printf("| 3. Update Inventory Record       |\n");
-    printf("| 4. Delete Inventory Record       |\n");
-    printf("| 5. View Low Stock Items          |\n");
-    printf("| 6. Generate Inventory Report     |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. Add Inventory Record              |\n");
+    printf("| 2. View All Inventory Records        |\n");
+    printf("| 3. Update Inventory Record           |\n");
+    printf("| 4. Delete Inventory Record           |\n");
+    printf("| 5. View Low Stock Items              |\n");
+    printf("| 6. Generate Inventory Report         |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================");
     printf("\nEnter your choice: ");
 }

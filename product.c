@@ -447,13 +447,14 @@ void displayProductMenu(void) {
     printf("\n========================================\n");
     printf("        PRODUCT MANAGEMENT\n");
     printf("========================================\n");
-    printf("| 1. Add Product                   |\n");
-    printf("| 2. View All Products             |\n");
-    printf("| 3. View Product Details          |\n");
-    printf("| 4. Update Product                |\n");
-    printf("| 5. Delete Product                |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. Add Product                       |\n");
+    printf("| 2. View All Products                 |\n");
+    printf("| 3. View Product Details              |\n");
+    printf("| 4. Update Product                    |\n");
+    printf("| 5. Delete Product                    |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================\n");
+    printf("Enter your choice: ");
 }
 
 // Fixed handleProductMenuChoice function - remove duplicate messages

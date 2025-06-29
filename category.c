@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "category.h"
 #include "utils.h"
 
@@ -9,19 +10,19 @@ void displayCategoryMenu(void) {
     printf("\n========================================\n");
     printf("      CATEGORY MANAGEMENT SYSTEM\n");
     printf("========================================\n");
-    printf("| 1. Add Category                  |\n");
-    printf("| 2. View All Categories           |\n");
-    printf("| 3. Update Category               |\n");
-    printf("| 4. Delete Category               |\n");
-    printf("| 5. Filter Products by Category   |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. Add Category                      |\n");
+    printf("| 2. View All Categories               |\n");
+    printf("| 3. Update Category                   |\n");
+    printf("| 4. Delete Category                   |\n");
+    printf("| 5. Filter Products by Category       |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================");
     printf("\nEnter your choice: ");
 }
 
 /* Function to handle category menu choices */
 void handleCategoryMenuChoice(int choice) {
-    int categoryID;
+    char categoryID[10];
     
     switch (choice) {
         case 1:
@@ -53,16 +54,11 @@ void handleCategoryMenuChoice(int choice) {
             
         case 5:
             printf("\n=== FILTER PRODUCTS BY CATEGORY ===\n");
-            printf("Enter Category ID: ");
-            if (scanf("%d", &categoryID) != 1) {
-                printf("Invalid input!\n");
-                clearInputBuffer();
-                pause();
-                break;
-            }
+            printf("Enter Category ID (e.g., C00001): ");
+            scanf("%9s", categoryID);
             clearInputBuffer();
-            printf("\nProducts in Category ID %d:\n", categoryID);
-            printf("----------------------------------------\n");
+            printf("\nProducts in Category ID %s:\n", categoryID);
+            printf("-----------------------------------------------------\n");
             filterProductsByCategory(categoryID);
             pause();
             break;
@@ -96,6 +92,14 @@ void categoryManagementMenu(void) {
     } while (choice != 0);
 }
 
+int isValidCategory(const char *id) {
+    if (strlen(id) != 6 || id[0] != 'C') return 0;
+    for (int i = 1; i < 6; i++) {
+        if (!isdigit(id[i])) return 0;
+    }
+    return 1;
+}
+
 void addCategory() {
     FILE *fp = fopen(CATEGORY_FILE, "a");
     if (fp == NULL) {
@@ -104,30 +108,36 @@ void addCategory() {
     }
     
     Category c;
-    printf("ID: "); 
-    if (scanf("%d", &c.id) != 1) {
-        printf("Invalid ID input!\n");
-        clearInputBuffer();
+    printf("Enter Category ID (e.g., C00001): ");
+    scanf("%9s", c.id);
+    if (!isValidCategory(c.id)) {
+        printf("Invalid Category ID format. Must start with 'C' and 5 digits.\n");
         fclose(fp);
         return;
     }
-    clearInputBuffer();
     
-    printf("Name: "); 
-    if (fgets(c.name, sizeof(c.name), stdin) != NULL) {
-        // Remove newline if present
-        char *newlinePos = strchr(c.name, '\n');
-        if (newlinePos) *newlinePos = '\0';
+    // Check if ID already exists
+    FILE *check = fopen(CATEGORY_FILE, "r");
+    if (check) {
+        char line[100];
+        Category temp;
+        while (fgets(line, sizeof(line), check)) {
+            if (sscanf(line, "%[^|]|%[^\n]", temp.id, temp.name) == 2) {
+                if (strcmp(temp.id, c.id) == 0) {
+                    printf("Category ID %s already exists!\n", c.id);
+                    fclose(check);
+                    fclose(fp);
+                    return;
+                }
+            }
+        }
+        fclose(check);
     }
     
-    printf("Description: "); 
-    if (fgets(c.description, sizeof(c.description), stdin) != NULL) {
-        // Remove newline if present
-        char *newlinePos = strchr(c.description, '\n');
-        if (newlinePos) *newlinePos = '\0';
-    }
+    printf("Enter Category Name: ");
+    scanf(" %49[^\n]", c.name);
     
-    fprintf(fp, "%d|%s|%s\n", c.id, c.name, c.description);
+    fprintf(fp, "%s|%s\n", c.id, c.name);
     fclose(fp);
 }
 
@@ -139,15 +149,15 @@ void viewCategories() {
     }
     
     Category c;
-    char line[200];
+    char line[100];
     int count = 0;
     
-    printf("%-5s %-20s %-30s\n", "ID", "Name", "Description");
-    printf("-------------------------------------------------------------\n");
+    printf("%-8s %-30s\n", "ID", "Name");
+    printf("------------------------------------------\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &c.id, c.name, c.description) == 3) {
-            printf("%-5d %-20s %-30s\n", c.id, c.name, c.description);
+        if (sscanf(line, "%[^|]|%[^\n]", c.id, c.name) == 2) {
+            printf("%-8s %-30s\n", c.id, c.name);
             count++;
         }
     }
@@ -168,7 +178,8 @@ void updateCategory() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    // Use current directory instead of data/ subdirectory
+    FILE *temp = fopen("temp_category.txt", "w");
     if (temp == NULL) {
         printf("Error: Unable to create temporary file!\n");
         fclose(fp);
@@ -176,39 +187,23 @@ void updateCategory() {
     }
     
     Category c;
-    int id, found = 0;
-    char line[200];
+    char id[10];
+    int found = 0;
+    char line[100];
     
     printf("Enter Category ID to update: ");
-    if (scanf("%d", &id) != 1) {
-        printf("Invalid ID input!\n");
-        clearInputBuffer();
-        fclose(fp);
-        fclose(temp);
-        remove("data/temp.txt");
-        return;
-    }
+    scanf("%9s", id);
     clearInputBuffer();
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &c.id, c.name, c.description) == 3) {
-            if (c.id == id) {
+        if (sscanf(line, "%[^|]|%[^\n]", c.id, c.name) == 2) {
+            if (strcmp(c.id, id) == 0) {
                 found = 1;
                 printf("Current Name: %s\n", c.name);
-                printf("New Name: "); 
-                if (fgets(c.name, sizeof(c.name), stdin) != NULL) {
-                    char *newlinePos = strchr(c.name, '\n');
-                    if (newlinePos) *newlinePos = '\0';
-                }
-                
-                printf("Current Description: %s\n", c.description);
-                printf("New Description: "); 
-                if (fgets(c.description, sizeof(c.description), stdin) != NULL) {
-                    char *newlinePos = strchr(c.description, '\n');
-                    if (newlinePos) *newlinePos = '\0';
-                }
+                printf("New Name: ");
+                scanf(" %49[^\n]", c.name);
             }
-            fprintf(temp, "%d|%s|%s\n", c.id, c.name, c.description);
+            fprintf(temp, "%s|%s\n", c.id, c.name);
         }
     }
     
@@ -217,11 +212,11 @@ void updateCategory() {
     
     if (found) {
         remove(CATEGORY_FILE); 
-        rename("data/temp.txt", CATEGORY_FILE);
+        rename("temp_category.txt", CATEGORY_FILE);
         printf("Category updated successfully!\n");
     } else {
-        remove("data/temp.txt");
-        printf("Category ID %d not found.\n", id);
+        remove("temp_category.txt");
+        printf("Category ID %s not found.\n", id);
     }
 }
 
@@ -232,7 +227,8 @@ void deleteCategory() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    // Use current directory instead of data/ subdirectory
+    FILE *temp = fopen("temp_category.txt", "w");
     if (temp == NULL) {
         printf("Error: Unable to create temporary file!\n");
         fclose(fp);
@@ -240,24 +236,18 @@ void deleteCategory() {
     }
     
     Category c;
-    int id, found = 0;
-    char line[200];
+    char id[10];
+    int found = 0;
+    char line[100];
     
     printf("Enter Category ID to delete: ");
-    if (scanf("%d", &id) != 1) {
-        printf("Invalid ID input!\n");
-        clearInputBuffer();
-        fclose(fp);
-        fclose(temp);
-        remove("data/temp.txt");
-        return;
-    }
+    scanf("%9s", id);
     clearInputBuffer();
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &c.id, c.name, c.description) == 3) {
-            if (c.id != id) {
-                fprintf(temp, "%d|%s|%s\n", c.id, c.name, c.description);
+        if (sscanf(line, "%[^|]|%[^\n]", c.id, c.name) == 2) {
+            if (strcmp(c.id, id) != 0) {
+                fprintf(temp, "%s|%s\n", c.id, c.name);
             } else {
                 found = 1;
                 printf("Deleting category: %s\n", c.name);
@@ -270,15 +260,15 @@ void deleteCategory() {
     
     if (found) {
         remove(CATEGORY_FILE); 
-        rename("data/temp.txt", CATEGORY_FILE);
+        rename("temp_category.txt", CATEGORY_FILE);
         printf("Category deleted successfully!\n");
     } else {
-        remove("data/temp.txt");
-        printf("Category ID %d not found.\n", id);
+        remove("temp_category.txt");
+        printf("Category ID %s not found.\n", id);
     }
 }
 
-void filterProductsByCategory(int categoryID) {
+void filterProductsByCategory(const char *categoryID) {
     FILE *fp = fopen(PRODUCT_FILE, "r");
     if (fp == NULL) {
         printf("No products found or unable to open product file.\n");
@@ -289,18 +279,15 @@ void filterProductsByCategory(int categoryID) {
     char line[256];
     int found = 0;
     
-    // Format category ID string (e.g., 1 → "C00001")
-    char categoryIDStr[10];
-    snprintf(categoryIDStr, sizeof(categoryIDStr), "C%05d", categoryID);
-    
     printf("%-10s %-20s %-10s %-10s %-8s %-5s\n", 
            "ID", "Name", "Category", "Supplier", "Price", "Qty");
     printf("-----------------------------------------------------------------------\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%9[^|]|%49[^|]|%9[^|]|%9[^|]|%f|%d",
-                   p.id, p.name, p.category, p.supplierID, &p.price, &p.quantity) == 6) {
-            if (strcmp(p.category, categoryIDStr) == 0) {
+        // Fixed: Parse quantity first, then price to match expected data format
+        if (sscanf(line, "%9[^|]|%49[^|]|%9[^|]|%9[^|]|%d|%f",
+                   p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
+            if (strcmp(p.category, categoryID) == 0) {
                 printf("%-10s %-20s %-10s %-10s $%-7.2f %-5d\n",
                        p.id, p.name, p.category, p.supplierID, p.price, p.quantity);
                 found = 1;
@@ -309,7 +296,7 @@ void filterProductsByCategory(int categoryID) {
     }
     
     if (!found) {
-        printf("No products found for category %s.\n", categoryIDStr);
+        printf("No products found for category %s.\n", categoryID);
     }
     
     fclose(fp);

@@ -6,16 +6,16 @@
 #define CATEGORY_FILE "categories.txt"
 
 typedef struct {
-    int id;
+    char id[10];
     char name[50];
-    char description[100];
 } Category;
 
+int isValidCategory(const char *id);
 void addCategory();
 void viewCategories();
 void updateCategory();
 void deleteCategory();
-void filterProductsByCategory(int);
+void filterProductsByCategory(const char *categoryID);
 void displayCategoryMenu(void);
 void handleCategoryMenuChoice(int choice);
 void categoryManagementMenu(void);

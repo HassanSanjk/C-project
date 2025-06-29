@@ -10,11 +10,11 @@ void displayUserMenu(void) {
     printf("\n========================================\n");
     printf("         USER MANAGEMENT\n");
     printf("========================================\n");
-    printf("| 1. Add User                      |\n");
-    printf("| 2. View All Users                |\n");
-    printf("| 3. Update User                   |\n");
-    printf("| 4. Delete User                   |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. Add User                          |\n");
+    printf("| 2. View All Users                    |\n");
+    printf("| 3. Update User                       |\n");
+    printf("| 4. Delete User                       |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================\n");
     printf("Enter your choice: ");
 }

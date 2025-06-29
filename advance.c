@@ -53,7 +53,6 @@ void lowStockAlert() {
 void searchProductByName() {
     char keyword[50];
     printf("Enter keyword to search product name: ");
-    clearInputBuffer(); // Clear buffer before reading
     if (fgets(keyword, sizeof(keyword), stdin) != NULL) {
         // Remove newline if present
         size_t len = strlen(keyword);
@@ -166,7 +165,6 @@ void transactionSummary() {
 void findUserContact() {
     char uid[10];
     printf("Enter User ID (e.g., U00001): ");
-    clearInputBuffer();
     if (fgets(uid, sizeof(uid), stdin) != NULL) {
         size_t len = strlen(uid);
         if (len > 0 && uid[len-1] == '\n') {
@@ -265,14 +263,14 @@ void advancedFeaturesMenu() {
         printf("\n========================================\n");
         printf("       ADVANCED FEATURES MENU\n");
         printf("========================================\n");
-        printf("| 1. Show Low Stock Alert          |\n");
-        printf("| 2. Search Product by Name        |\n");
-        printf("| 3. Transaction Summary            |\n");
-        printf("| 4. Find User Contact              |\n");
-        printf("| 5. Find Supplier Email           |\n");
-        printf("| 0. Back to Main Menu              |\n");
+        printf("| 1. Show Low Stock Alert              |\n");
+        printf("| 2. Search Product by Name            |\n");
+        printf("| 3. Transaction Summary               |\n");
+        printf("| 4. Find User Contact                 |\n");
+        printf("| 5. Find Supplier Email               |\n");
+        printf("| 0. Back to Main Menu                 |\n");
         printf("========================================\n");
-        printf("\nEnter your choice: ");
+        printf("Enter your choice: ");
         
         if (scanf("%d", &choice) != 1) {
             choice = -1;

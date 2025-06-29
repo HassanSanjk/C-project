@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void clearInputBuffer(void);
+
 int isValidDate(const char *date) {
     if (strlen(date) != 10) return 0;
     int year, month, day;
@@ -13,8 +15,8 @@ int isValidDate(const char *date) {
 /* Function to pause and wait for user input */
 void pause(void) {
     printf("\nPress Enter to continue...");
-    while (getchar() != '\n'); // Clear input buffer
-    getchar(); // Wait for Enter
+    clearInputBuffer(); // Clear any leftover input first
+    getchar(); // Wait for user to press Enter
 }
 
 /* Function to clear screen */

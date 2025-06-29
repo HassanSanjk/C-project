@@ -51,7 +51,6 @@ void displayWelcomeMessage(void) {
     printf("                  Designed for efficient inventory management                  \n");
     printf("================================================================================\n");
     printf("\nPress Enter to continue...");
-    while (getchar() != '\n'); // Clear input buffer
     getchar(); // Wait for Enter
 }
 
@@ -60,14 +59,14 @@ void displayMainMenu(void) {
     printf("\n========================================\n");
     printf("    INVENTORY MANAGEMENT SYSTEM\n");
     printf("========================================\n");
-    printf("| 1. Product Management            |\n");
-    printf("| 2. Inventory & Stock Management  |\n");
-    printf("| 3. Category Management           |\n");
-    printf("| 4. Supplier Management           |\n");
-    printf("| 5. User & Transaction Management |\n");
-    printf("| 6. Advanced Features & Analytics |\n");
-    printf("| 7. Generate System Reports       |\n");
-    printf("| 0. Exit System                   |\n");
+    printf("| 1. Product Management                |\n");
+    printf("| 2. Inventory & Stock Management      |\n");
+    printf("| 3. Category Management               |\n");
+    printf("| 4. Supplier Management               |\n");
+    printf("| 5. User & Transaction Management     |\n");
+    printf("| 6. Advanced Features & Analytics     |\n");
+    printf("| 7. Generate System Reports           |\n");
+    printf("| 0. Exit System                       |\n");
     printf("========================================");
     printf("\nEnter your choice: ");
 }
@@ -77,9 +76,9 @@ void displayUserTransactionMenu(void) {
     printf("\n========================================\n");
     printf("   USER & TRANSACTION MANAGEMENT\n");
     printf("========================================\n");
-    printf("| 1. User Management               |\n");
-    printf("| 2. Transaction Management        |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. User Management                   |\n");
+    printf("| 2. Transaction Management            |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================\n");
     printf("\nEnter your choice: ");
 }
@@ -173,7 +172,7 @@ void displayExitMessage(void) {
     printf("================================================================================\n");
     printf("                              Have a great day!                                \n");
     printf("================================================================================\n");
-    pause();
+    getchar(); // Wait for Enter
 }
 
 

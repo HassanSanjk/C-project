@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "supplier.h"
 #include "utils.h"
 
@@ -9,19 +10,19 @@ void displaySupplierMenu(void) {
     printf("\n========================================\n");
     printf("      SUPPLIER MANAGEMENT\n");
     printf("========================================\n");
-    printf("| 1. Add Supplier                  |\n");
-    printf("| 2. View All Suppliers            |\n");
-    printf("| 3. Update Supplier               |\n");
-    printf("| 4. Delete Supplier               |\n");
-    printf("| 5. Filter Products by Supplier   |\n");
-    printf("| 0. Back to Main Menu             |\n");
+    printf("| 1. Add Supplier                      |\n");
+    printf("| 2. View All Suppliers                |\n");
+    printf("| 3. Update Supplier                   |\n");
+    printf("| 4. Delete Supplier                   |\n");
+    printf("| 5. Filter Products by Supplier       |\n");
+    printf("| 0. Back to Main Menu                 |\n");
     printf("========================================");
     printf("\nEnter your choice: ");
 }
 
 /* Function to handle supplier menu choices */
 void handleSupplierMenuChoice(int choice) {
-    int supplierID;
+    char supplierID[10];
     
     switch (choice) {
         case 1:
@@ -46,16 +47,11 @@ void handleSupplierMenuChoice(int choice) {
             
         case 5:
             printf("\n=== FILTER PRODUCTS BY SUPPLIER ===\n");
-            printf("Enter Supplier ID: ");
-            if (scanf("%d", &supplierID) != 1) {
-                printf("Invalid input!\n");
-                clearInputBuffer();
-                pause();
-                return;
-            }
+            printf("Enter Supplier ID (e.g., S00001): ");
+            scanf("%9s", supplierID);
             clearInputBuffer();
-            printf("\nProducts from Supplier ID %d:\n", supplierID);
-            printf("----------------------------------------\n");
+            printf("\nProducts from Supplier ID %s:\n", supplierID);
+            printf("-----------------------------------------------------\n");
             filterProductsBySupplier(supplierID);
             pause();
             break;
@@ -89,6 +85,27 @@ void supplierManagementMenu(void) {
     } while (choice != 0);
 }
 
+int isValidSupplier(const char *id) {
+    if (strlen(id) != 6 || id[0] != 'S') return 0;
+    for (int i = 1; i < 6; i++) {
+        if (!isdigit(id[i])) return 0;
+    }
+    return 1;
+}
+
+int isValidPhone(const char *phone) {
+    int len = strlen(phone);
+    if (len < 5 || len > 15) return 0;
+    for (int i = 0; i < len; i++) {
+        if (!isdigit(phone[i])) return 0;
+    }
+    return 1;
+}
+
+int isValidEmail(const char *email) {
+    return strchr(email, '@') && strchr(email, '.');
+}
+
 void addSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "a");
     if (!fp) {
@@ -98,25 +115,24 @@ void addSupplier() {
     }
     
     Supplier s;
-    printf("Enter Supplier ID: ");
-    if (scanf("%d", &s.id) != 1) {
-        printf("Invalid input!\n");
-        clearInputBuffer();
+    printf("Enter Supplier ID (e.g., S00001): ");
+    scanf("%9s", s.id);
+    if (!isValidSupplier(s.id)) {
+        printf("Invalid Supplier ID format. Must start with 'S' and 5 digits.\n");
         fclose(fp);
         pause();
         return;
     }
-    clearInputBuffer();
     
     // Check if ID already exists
     FILE *check = fopen(SUPPLIER_FILE, "r");
     if (check) {
-        char line[200];
+        char line[256];
         Supplier temp;
         while (fgets(line, sizeof(line), check)) {
-            if (sscanf(line, "%d|%49[^|]|%99[^\n]", &temp.id, temp.name, temp.contact) == 3) {
-                if (temp.id == s.id) {
-                    printf("Supplier ID %d already exists!\n", s.id);
+            if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^\n]", temp.id, temp.name, temp.phone, temp.email) == 4) {
+                if (strcmp(temp.id, s.id) == 0) {
+                    printf("Supplier ID %s already exists!\n", s.id);
                     fclose(check);
                     fclose(fp);
                     pause();
@@ -127,25 +143,28 @@ void addSupplier() {
         fclose(check);
     }
     
-    printf("Enter Supplier Name: ");
-    if (!fgets(s.name, sizeof(s.name), stdin)) {
-        printf("Invalid input!\n");
+    printf("Enter Name: ");
+    scanf(" %49[^\n]", s.name);
+    
+    printf("Enter Phone (5 to 15 digits only): ");
+    scanf(" %19[^\n]", s.phone);
+    if (!isValidPhone(s.phone)) {
+        printf("Invalid phone. Must be 5 to 15 digits.\n");
         fclose(fp);
         pause();
         return;
     }
-    s.name[strcspn(s.name, "\n")] = 0; // Remove newline
     
-    printf("Enter Contact Information: ");
-    if (!fgets(s.contact, sizeof(s.contact), stdin)) {
-        printf("Invalid input!\n");
+    printf("Enter Email: ");
+    scanf(" %49[^\n]", s.email);
+    if (!isValidEmail(s.email)) {
+        printf("Invalid email format.\n");
         fclose(fp);
         pause();
         return;
     }
-    s.contact[strcspn(s.contact, "\n")] = 0; // Remove newline
     
-    fprintf(fp, "%d|%s|%s\n", s.id, s.name, s.contact);
+    fprintf(fp, "%s|%s|%s|%s\n", s.id, s.name, s.phone, s.email);
     fclose(fp);
     printf("Supplier added successfully!\n");
     pause();
@@ -160,15 +179,15 @@ void viewSuppliers() {
     }
     
     Supplier s;
-    char line[200];
+    char line[256];
     int count = 0;
     
-    printf("%-5s %-20s %-30s\n", "ID", "Name", "Contact");
-    printf("--------------------------------------------------------\n");
+    printf("%-8s %-20s %-15s %-30s\n", "ID", "Name", "Phone", "Email");
+    printf("-------------------------------------------------------------------------\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &s.id, s.name, s.contact) == 3) {
-            printf("%-5d %-20s %-30s\n", s.id, s.name, s.contact);
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^\n]", s.id, s.name, s.phone, s.email) == 4) {
+            printf("%-8s %-20s %-15s %-30s\n", s.id, s.name, s.phone, s.email);
             count++;
         }
     }
@@ -191,7 +210,8 @@ void updateSupplier() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    // Use current directory instead of data/ subdirectory
+    FILE *temp = fopen("temp_supplier.txt", "w");
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
@@ -200,44 +220,40 @@ void updateSupplier() {
     }
     
     Supplier s;
-    int id, found = 0;
-    char line[200];
+    char id[10];
+    int found = 0;
+    char line[256];
     
     printf("Enter Supplier ID to update: ");
-    if (scanf("%d", &id) != 1) {
-        printf("Invalid input!\n");
-        clearInputBuffer();
-        fclose(fp);
-        fclose(temp);
-        remove("data/temp.txt");
-        pause();
-        return;
-    }
+    scanf("%9s", id);
     clearInputBuffer();
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &s.id, s.name, s.contact) == 3) {
-            if (s.id == id) {
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^\n]", s.id, s.name, s.phone, s.email) == 4) {
+            if (strcmp(s.id, id) == 0) {
                 found = 1;
-                printf("Current: ID: %d | Name: %s | Contact: %s\n", s.id, s.name, s.contact);
+                printf("Current: ID: %s | Name: %s | Phone: %s | Email: %s\n", s.id, s.name, s.phone, s.email);
                 
                 printf("Enter new name: ");
-                if (!fgets(s.name, sizeof(s.name), stdin)) {
-                    printf("Invalid input!\n");
-                    fclose(fp); fclose(temp); remove("data/temp.txt");
-                    pause(); return;
-                }
-                s.name[strcspn(s.name, "\n")] = 0;
+                scanf(" %49[^\n]", s.name);
                 
-                printf("Enter new contact: ");
-                if (!fgets(s.contact, sizeof(s.contact), stdin)) {
-                    printf("Invalid input!\n");
-                    fclose(fp); fclose(temp); remove("data/temp.txt");
+                printf("Enter new phone: ");
+                scanf(" %19[^\n]", s.phone);
+                if (!isValidPhone(s.phone)) {
+                    printf("Invalid phone. Must be 5 to 15 digits.\n");
+                    fclose(fp); fclose(temp); remove("temp_supplier.txt");
                     pause(); return;
                 }
-                s.contact[strcspn(s.contact, "\n")] = 0;
+                
+                printf("Enter new email: ");
+                scanf(" %49[^\n]", s.email);
+                if (!isValidEmail(s.email)) {
+                    printf("Invalid email format.\n");
+                    fclose(fp); fclose(temp); remove("temp_supplier.txt");
+                    pause(); return;
+                }
             }
-            fprintf(temp, "%d|%s|%s\n", s.id, s.name, s.contact);
+            fprintf(temp, "%s|%s|%s|%s\n", s.id, s.name, s.phone, s.email);
         }
     }
     
@@ -246,11 +262,11 @@ void updateSupplier() {
     
     if (found) {
         remove(SUPPLIER_FILE);
-        rename("data/temp.txt", SUPPLIER_FILE);
+        rename("temp_supplier.txt", SUPPLIER_FILE);
         printf("Supplier updated successfully!\n");
     } else {
-        remove("data/temp.txt");
-        printf("Supplier ID %d not found.\n", id);
+        remove("temp_supplier.txt");
+        printf("Supplier ID %s not found.\n", id);
     }
     
     pause();
@@ -264,7 +280,8 @@ void deleteSupplier() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    // Use current directory instead of data/ subdirectory
+    FILE *temp = fopen("temp_supplier.txt", "w");
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
@@ -273,28 +290,21 @@ void deleteSupplier() {
     }
     
     Supplier s;
-    int id, found = 0;
-    char line[200];
+    char id[10];
+    int found = 0;
+    char line[256];
     
     printf("Enter Supplier ID to delete: ");
-    if (scanf("%d", &id) != 1) {
-        printf("Invalid input!\n");
-        clearInputBuffer();
-        fclose(fp);
-        fclose(temp);
-        remove("data/temp.txt");
-        pause();
-        return;
-    }
+    scanf("%9s", id);
     clearInputBuffer();
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%d|%49[^|]|%99[^\n]", &s.id, s.name, s.contact) == 3) {
-            if (s.id == id) {
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^\n]", s.id, s.name, s.phone, s.email) == 4) {
+            if (strcmp(s.id, id) == 0) {
                 found = 1;
-                printf("Deleting: ID: %d | Name: %s | Contact: %s\n", s.id, s.name, s.contact);
+                printf("Deleting: ID: %s | Name: %s | Phone: %s | Email: %s\n", s.id, s.name, s.phone, s.email);
             } else {
-                fprintf(temp, "%d|%s|%s\n", s.id, s.name, s.contact);
+                fprintf(temp, "%s|%s|%s|%s\n", s.id, s.name, s.phone, s.email);
             }
         }
     }
@@ -304,17 +314,17 @@ void deleteSupplier() {
     
     if (found) {
         remove(SUPPLIER_FILE);
-        rename("data/temp.txt", SUPPLIER_FILE);
+        rename("temp_supplier.txt", SUPPLIER_FILE);
         printf("Supplier deleted successfully!\n");
     } else {
-        remove("data/temp.txt");
-        printf("Supplier ID %d not found.\n", id);
+        remove("temp_supplier.txt");
+        printf("Supplier ID %s not found.\n", id);
     }
     
     pause();
 }
 
-void filterProductsBySupplier(int supplierID) {
+void filterProductsBySupplier(const char *supplierID) {
     FILE *fp = fopen(PRODUCT_FILE, "r");
     if (!fp) {
         printf("Cannot open product file.\n");
@@ -325,17 +335,14 @@ void filterProductsBySupplier(int supplierID) {
     char line[256];
     int found = 0;
     
-    // Format the supplier ID string (e.g., 1 → "S00001")
-    char supplierIDStr[10];
-    snprintf(supplierIDStr, sizeof(supplierIDStr), "S%05d", supplierID);
-    
     printf("%-10s %-20s %-10s %-8s\n", "Product ID", "Name", "Price", "Quantity");
     printf("-----------------------------------------------------\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%9[^|]|%49[^|]|%9[^|]|%9[^|]|%f|%d",
-                   p.id, p.name, p.category, p.supplierID, &p.price, &p.quantity) == 6) {
-            if (strcmp(p.supplierID, supplierIDStr) == 0) {
+        // Fixed: Parse quantity first, then price to match expected data format
+        if (sscanf(line, "%9[^|]|%49[^|]|%9[^|]|%9[^|]|%d|%f",
+                   p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
+            if (strcmp(p.supplierID, supplierID) == 0) {
                 printf("%-10s %-20s $%-9.2f %-8d\n", p.id, p.name, p.price, p.quantity);
                 found = 1;
             }
@@ -343,7 +350,7 @@ void filterProductsBySupplier(int supplierID) {
     }
     
     if (!found) {
-        printf("No products found for supplier %s.\n", supplierIDStr);
+        printf("No products found for supplier %s.\n", supplierID);
     }
     
     fclose(fp);
