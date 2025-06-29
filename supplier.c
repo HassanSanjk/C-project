@@ -28,21 +28,25 @@ void handleSupplierMenuChoice(int choice) {
         case 1:
             printf("\n=== ADD SUPPLIER ===\n");
             addSupplier();
+            pause();
             break;
             
         case 2:
             printf("\n=== ALL SUPPLIERS ===\n");
             viewSuppliers();
+            pause();
             break;
             
         case 3:
             printf("\n=== UPDATE SUPPLIER ===\n");
             updateSupplier();
+            pause();
             break;
             
         case 4:
             printf("\n=== DELETE SUPPLIER ===\n");
             deleteSupplier();
+            pause();
             break;
             
         case 5:
@@ -110,7 +114,6 @@ void addSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "a");
     if (!fp) {
         printf("Cannot open supplier file.\n");
-        pause();
         return;
     }
     
@@ -120,7 +123,6 @@ void addSupplier() {
     if (!isValidSupplier(s.id)) {
         printf("Invalid Supplier ID format. Must start with 'S' and 5 digits.\n");
         fclose(fp);
-        pause();
         return;
     }
     
@@ -135,7 +137,6 @@ void addSupplier() {
                     printf("Supplier ID %s already exists!\n", s.id);
                     fclose(check);
                     fclose(fp);
-                    pause();
                     return;
                 }
             }
@@ -151,7 +152,6 @@ void addSupplier() {
     if (!isValidPhone(s.phone)) {
         printf("Invalid phone. Must be 5 to 15 digits.\n");
         fclose(fp);
-        pause();
         return;
     }
     
@@ -160,21 +160,18 @@ void addSupplier() {
     if (!isValidEmail(s.email)) {
         printf("Invalid email format.\n");
         fclose(fp);
-        pause();
         return;
     }
     
     fprintf(fp, "%s|%s|%s|%s\n", s.id, s.name, s.phone, s.email);
     fclose(fp);
     printf("Supplier added successfully!\n");
-    pause();
 }
 
 void viewSuppliers() {
     FILE *fp = fopen(SUPPLIER_FILE, "r");
     if (!fp) {
         printf("No suppliers found or cannot open supplier file.\n");
-        pause();
         return;
     }
     
@@ -199,14 +196,12 @@ void viewSuppliers() {
     }
     
     fclose(fp);
-    pause();
 }
 
 void updateSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "r");
     if (!fp) {
         printf("Cannot open supplier file.\n");
-        pause();
         return;
     }
     
@@ -215,7 +210,6 @@ void updateSupplier() {
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
-        pause();
         return;
     }
     
@@ -242,7 +236,7 @@ void updateSupplier() {
                 if (!isValidPhone(s.phone)) {
                     printf("Invalid phone. Must be 5 to 15 digits.\n");
                     fclose(fp); fclose(temp); remove("temp_supplier.txt");
-                    pause(); return;
+                    return;
                 }
                 
                 printf("Enter new email: ");
@@ -250,7 +244,7 @@ void updateSupplier() {
                 if (!isValidEmail(s.email)) {
                     printf("Invalid email format.\n");
                     fclose(fp); fclose(temp); remove("temp_supplier.txt");
-                    pause(); return;
+                    return;
                 }
             }
             fprintf(temp, "%s|%s|%s|%s\n", s.id, s.name, s.phone, s.email);
@@ -269,14 +263,12 @@ void updateSupplier() {
         printf("Supplier ID %s not found.\n", id);
     }
     
-    pause();
 }
 
 void deleteSupplier() {
     FILE *fp = fopen(SUPPLIER_FILE, "r");
     if (!fp) {
         printf("Cannot open supplier file.\n");
-        pause();
         return;
     }
     
@@ -285,7 +277,6 @@ void deleteSupplier() {
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
-        pause();
         return;
     }
     
@@ -321,7 +312,6 @@ void deleteSupplier() {
         printf("Supplier ID %s not found.\n", id);
     }
     
-    pause();
 }
 
 void filterProductsBySupplier(const char *supplierID) {

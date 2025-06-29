@@ -27,31 +27,37 @@ void handleInventoryMenuChoice(int choice) {
         case 1:
             printf("\n=== ADD INVENTORY RECORD ===\n");
             addInventoryRecord();
+            pause();
             break;
             
         case 2:
             printf("\n=== ALL INVENTORY RECORDS ===\n");
             readInventoryRecords();
+            pause();
             break;
             
         case 3:
             printf("\n=== UPDATE INVENTORY RECORD ===\n");
             updateInventoryRecord();
+            pause();
             break;
             
         case 4:
             printf("\n=== DELETE INVENTORY RECORD ===\n");
             deleteInventoryRecord();
+            pause();
             break;
             
         case 5:
             printf("\n=== LOW STOCK ITEMS ===\n");
             showLowStockItems();
+            pause();
             break;
             
         case 6:
             printf("\n=== INVENTORY REPORT ===\n");
             generateInventoryReport();
+            pause();
             break;
             
         case 0:
@@ -117,19 +123,16 @@ void addInventoryRecord() {
     if (scanf("%9s", r.productID) != 1) {
         printf("Invalid input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
     
     if (!isValidProductID(r.productID)) {
         printf("Invalid Product ID format.\n");
-        pause();
         return;
     }
     if (!existsInFile("products.txt", r.productID)) {
         printf("Product ID not found.\n");
-        pause();
         return;
     }
 
@@ -137,7 +140,6 @@ void addInventoryRecord() {
     if (scanf("%d", &r.stockChange) != 1) {
         printf("Invalid stock change input.\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
@@ -146,14 +148,12 @@ void addInventoryRecord() {
     if (scanf("%19s", r.date) != 1) {
         printf("Invalid date input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
     
     if (!isValidDate(r.date)) {
         printf("Invalid date format. Must be YYYY-MM-DD and year must be at least 2025.\n");
-        pause();
         return;
     }
 
@@ -161,27 +161,23 @@ void addInventoryRecord() {
     if (scanf("%3s", r.action) != 1) {
         printf("Invalid action input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
     
     if (strcmp(r.action, "IN") != 0 && strcmp(r.action, "OUT") != 0) {
         printf("Action must be 'IN' or 'OUT' only.\n");
-        pause();
         return;
     }
 
     FILE *fp = fopen("inventory.txt", "a");
     if (!fp) {
         printf("Cannot open inventory file.\n");
-        pause();
         return;
     }
     fprintf(fp, "%s|%+d|%s|%s\n", r.productID, r.stockChange, r.date, r.action);
     fclose(fp);
     printf("Inventory record added successfully!\n");
-    pause();
 }
 
 // View Records
@@ -189,7 +185,6 @@ void readInventoryRecords() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
         printf("No inventory records found or cannot open inventory file.\n");
-        pause();
         return;
     }
 
@@ -214,7 +209,6 @@ void readInventoryRecords() {
     }
     
     fclose(fp);
-    pause();
 }
 
 // Update Record
@@ -225,7 +219,6 @@ void updateInventoryRecord() {
     if (scanf("%9s", targetID) != 1) {
         printf("Invalid input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
@@ -234,7 +227,6 @@ void updateInventoryRecord() {
     if (scanf("%19s", targetDate) != 1) {
         printf("Invalid input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
@@ -242,7 +234,6 @@ void updateInventoryRecord() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
         printf("Cannot open inventory file.\n");
-        pause();
         return;
     }
     
@@ -250,7 +241,6 @@ void updateInventoryRecord() {
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
-        pause();
         return;
     }
 
@@ -305,7 +295,6 @@ void updateInventoryRecord() {
         printf("Record not found.\n");
     }
 
-    pause();
 }
 
 // Delete Record
@@ -316,14 +305,12 @@ void deleteInventoryRecord() {
     if (scanf("%9s", targetID) != 1) {
         printf("Invalid input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
 
     if (!existsInFile("products.txt", targetID)) {
         printf("Product ID not found in products.\n");
-        pause();
         return;
     }
 
@@ -331,7 +318,6 @@ void deleteInventoryRecord() {
     if (scanf("%19s", targetDate) != 1) {
         printf("Invalid input!\n");
         clearInputBuffer();
-        pause();
         return;
     }
     clearInputBuffer();
@@ -339,7 +325,6 @@ void deleteInventoryRecord() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
         printf("Cannot open inventory file.\n");
-        pause();
         return;
     }
     
@@ -347,7 +332,6 @@ void deleteInventoryRecord() {
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
-        pause();
         return;
     }
 
@@ -379,7 +363,6 @@ void deleteInventoryRecord() {
         printf("Record not found.\n");
     }
 
-    pause();
 }
 
 // Show Low Stock Items
@@ -387,7 +370,6 @@ void showLowStockItems() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
         printf("No inventory records found.\n");
-        pause();
         return;
     }
 
@@ -414,7 +396,6 @@ void showLowStockItems() {
     }
 
     fclose(fp);
-    pause();
 }
 
 // Generate Inventory Report
@@ -422,7 +403,6 @@ void generateInventoryReport() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
         printf("No inventory records found.\n");
-        pause();
         return;
     }
 
@@ -457,5 +437,4 @@ void generateInventoryReport() {
     printf("Net Stock Change: %d\n", totalIn - totalOut);
 
     fclose(fp);
-    pause();
 }
