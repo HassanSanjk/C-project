@@ -6,7 +6,7 @@
 #include "product.h"
 #include "utils.h"
 
-/* Function to display inventory management menu */
+// Displays the inventory management menu options
 void displayInventoryMenu(void) {
     printf("\n========================================\n");
     printf("   INVENTORY & STOCK MANAGEMENT\n");
@@ -22,6 +22,7 @@ void displayInventoryMenu(void) {
     printf("\nEnter your choice: ");
 }
 
+// Handles user's menu selection for inventory features
 void handleInventoryMenuChoice(int choice) {
     switch (choice) {
         case 1:
@@ -61,7 +62,7 @@ void handleInventoryMenuChoice(int choice) {
             break;
             
         case 0:
-            /* Back to main menu */
+            // Back to main menu
             break;
             
         default:
@@ -71,7 +72,7 @@ void handleInventoryMenuChoice(int choice) {
     }
 }
 
-/* Main inventory management menu function */
+// Main loop for inventory management menu
 void inventoryManagementMenu(void) {
     int choice;
     
@@ -89,7 +90,7 @@ void inventoryManagementMenu(void) {
     } while (choice != 0);
 }
 
-/* Helper function to check if product ID exists */
+// Checks if a product ID exists in a given file
 int existsInFile(const char *filename, const char *productID) {
     FILE *fp = fopen(filename, "r");
     if (!fp) return 0;
@@ -105,7 +106,7 @@ int existsInFile(const char *filename, const char *productID) {
     return 0;
 }
 
-/* Helper function to validate product ID format */
+// Validates product ID format (e.g. P00001)
 int isValidProductID(const char *productID) {
     if (strlen(productID) != 6) return 0;
     if (productID[0] != 'P') return 0;
@@ -115,7 +116,7 @@ int isValidProductID(const char *productID) {
     return 1;
 }
 
-// Add Inventory Record
+// Adds a new inventory record to the file
 void addInventoryRecord() {
     InventoryRecord r;
 
@@ -180,7 +181,7 @@ void addInventoryRecord() {
     printf("Inventory record added successfully!\n");
 }
 
-// View Records
+// Displays all inventory records from the file
 void readInventoryRecords() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
@@ -211,7 +212,7 @@ void readInventoryRecords() {
     fclose(fp);
 }
 
-// Update Record
+// Updates an existing inventory record
 void updateInventoryRecord() {
     char targetID[10], targetDate[20];
     
@@ -294,10 +295,9 @@ void updateInventoryRecord() {
         remove("data/temp.txt");
         printf("Record not found.\n");
     }
-
 }
 
-// Delete Record
+// Deletes a specific inventory record
 void deleteInventoryRecord() {
     char targetID[10], targetDate[20];
     
@@ -362,10 +362,9 @@ void deleteInventoryRecord() {
         remove("data/temp.txt");
         printf("Record not found.\n");
     }
-
 }
 
-// Show Low Stock Items
+// Displays items with low stock changes
 void showLowStockItems() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
@@ -398,7 +397,7 @@ void showLowStockItems() {
     fclose(fp);
 }
 
-// Generate Inventory Report
+// Generates a summary report of inventory transactions
 void generateInventoryReport() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {

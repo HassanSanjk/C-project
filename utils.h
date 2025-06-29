@@ -1,11 +1,12 @@
-// utils.h
 #ifndef UTILS_H
 #define UTILS_H
 
+// Console utilities
 void pause(void);
-int isValidDate(const char *date);
 void clearScreen(void);
 void clearInputBuffer(void);
 
-#endif
+// Validation utilities
+int isValidDate(const char *date);
 
+#endif // UTILS_H

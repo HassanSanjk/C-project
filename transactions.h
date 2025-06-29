@@ -1,32 +1,30 @@
 #ifndef TRANSACTIONS_H
 #define TRANSACTIONS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include "product.h"
 
+// Transaction structure
 typedef struct {
     char transactionID[15];
     char productID[10];
     int quantity;
-    char date[20]; // YYYY-MM-DD
+    char date[20];     // Format: YYYY-MM-DD
     float totalPrice;
 } Transaction;
 
-// Function declarations
-void pause(void);
-int isValidTransactionID(const char *id);
-int isValidDate(const char *date);
-int transactionExists(const char *transactionID);
+// Transaction operations
 void addTransaction(void);
 void viewTransactions(void);
 void updateTransaction(void);
 void deleteTransaction(void);
-void transactionMenu(void);
+
+// Transaction menu handling
 void displayTransactionMenu(void);
 void handleTransactionMenuChoice(int choice);
 void transactionManagementMenu(void);
+
+// Utilities
+int isValidTransactionID(const char *id);
+int transactionExists(const char *transactionID);
 
 #endif // TRANSACTIONS_H

@@ -5,11 +5,13 @@
 
 #define CATEGORY_FILE "categories.txt"
 
+// Category structure
 typedef struct {
     char id[10];
     char name[50];
 } Category;
 
+// Category management function prototypes
 int isValidCategory(const char *id);
 void addCategory();
 void viewCategories();
@@ -20,4 +22,4 @@ void displayCategoryMenu(void);
 void handleCategoryMenuChoice(int choice);
 void categoryManagementMenu(void);
 
-#endif
+#endif // CATEGORY_H

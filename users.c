@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "users.h"
 
-/* Function to display user management menu */
+// Display user menu
 void displayUserMenu(void) {
     printf("\n========================================\n");
     printf("         USER MANAGEMENT\n");
@@ -19,7 +19,7 @@ void displayUserMenu(void) {
     printf("Enter your choice: ");
 }
 
-/* Function to handle user menu choices */
+// Handle user menu selection
 void handleUserMenuChoice(int choice) {
     switch (choice) {
         case 1:
@@ -43,7 +43,7 @@ void handleUserMenuChoice(int choice) {
             break;
             
         case 0:
-            /* Back to main menu - handled in loop */
+            // Go back to main menu
             break;
             
         default:
@@ -53,7 +53,7 @@ void handleUserMenuChoice(int choice) {
     }
 }
 
-/* Main users management menu function */
+// User management menu loop
 void userManagementMenu(void) {
     int choice;
     
@@ -71,6 +71,7 @@ void userManagementMenu(void) {
     } while (choice != 0);
 }
 
+// Validate user ID format
 int isValidUserID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'U') return 0;
     for (int i = 1; i < 6; i++) {
@@ -79,6 +80,7 @@ int isValidUserID(const char *id) {
     return 1;
 }
 
+// Validate contact number format
 int isValidContact(const char *contact) {
     int len = strlen(contact);
     if (len < 5 || len > 15) return 0;
@@ -90,6 +92,7 @@ int isValidContact(const char *contact) {
     return 1;
 }
 
+// Check if user exists in file
 int userExists(const char *userID) {
     FILE *fp = fopen("users.txt", "r");
     if (!fp) return 0;
@@ -107,6 +110,7 @@ int userExists(const char *userID) {
     return 0;
 }
 
+// Add a new user
 void addUser() {
     User u;
     
@@ -170,6 +174,7 @@ void addUser() {
     pause();
 }
 
+// View all users
 void viewUsers() {
     FILE *fp = fopen("users.txt", "r");
     if (!fp) {
@@ -202,6 +207,7 @@ void viewUsers() {
     pause();
 }
 
+// Update user details
 void updateUser() {
     char targetID[20];
     printf("Enter User ID to update: ");
@@ -270,6 +276,7 @@ void updateUser() {
     pause();
 }
 
+// Delete a user
 void deleteUser() {
     char targetID[20];
     printf("Enter User ID to delete: ");

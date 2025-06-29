@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "transactions.h"
 
-/* Function to display transaction management menu */
+// Display transaction management menu
 void displayTransactionMenu(void) {
     printf("\n========================================\n");
     printf("      TRANSACTION MANAGEMENT\n");
@@ -19,33 +19,28 @@ void displayTransactionMenu(void) {
     printf("Enter your choice: ");
 }
 
-/* Function to handle transaction menu choices */
+// Handle transaction menu choice
 void handleTransactionMenuChoice(int choice) {
     switch (choice) {
         case 1:
             printf("\n=== ADD TRANSACTION ===\n");
             addTransaction();
             break;
-            
         case 2:
             printf("\n=== ALL TRANSACTIONS ===\n");
             viewTransactions();
             break;
-            
         case 3:
             printf("\n=== UPDATE TRANSACTION ===\n");
             updateTransaction();
             break;
-            
         case 4:
             printf("\n=== DELETE TRANSACTION ===\n");
             deleteTransaction();
             break;
-            
         case 0:
-            /* Back to main menu - handled in loop */
+            // Return to main menu
             break;
-            
         default:
             printf("Invalid option. Please choose a number between 0 and 4.\n");
             pause();
@@ -53,24 +48,21 @@ void handleTransactionMenuChoice(int choice) {
     }
 }
 
-/* Main transactions management menu function */
+// Transaction management menu loop
 void transactionManagementMenu(void) {
     int choice;
-    
     do {
         clearScreen();
         displayTransactionMenu();
-        
         if (scanf("%d", &choice) != 1) {
             choice = -1;
         }
         clearInputBuffer();
-        
         handleTransactionMenuChoice(choice);
-        
     } while (choice != 0);
 }
 
+// Validate transaction ID format (T + 5 digits)
 int isValidTransactionID(const char *id) {
     if (strlen(id) != 6 || id[0] != 'T') return 0;
     for (int i = 1; i < 6; i++) {
@@ -79,10 +71,11 @@ int isValidTransactionID(const char *id) {
     return 1;
 }
 
+// Check if a transaction ID already exists
 int transactionExists(const char *transactionID) {
     FILE *fp = fopen("transactions.txt", "r");
     if (!fp) return 0;
-    
+
     char line[256], id[20];
     while (fgets(line, sizeof(line), fp)) {
         if (sscanf(line, "%[^|]", id) == 1) {
@@ -96,6 +89,7 @@ int transactionExists(const char *transactionID) {
     return 0;
 }
 
+// Add a new transaction and update stock
 void addTransaction() {
     Transaction t;
     Product p;
@@ -106,13 +100,13 @@ void addTransaction() {
         pause();
         return;
     }
-    
+
     if (!isValidTransactionID(t.transactionID)) {
         printf("Invalid Transaction ID format. Use T followed by 5 digits.\n");
         pause();
         return;
     }
-    
+
     if (transactionExists(t.transactionID)) {
         printf("Transaction ID already exists.\n");
         pause();
@@ -132,11 +126,11 @@ void addTransaction() {
         pause();
         return;
     }
-    
+
     int found = 0;
     char line[512];
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f",
                    p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
             if (strcmp(p.id, t.productID) == 0) {
                 found = 1;
@@ -172,7 +166,7 @@ void addTransaction() {
         pause();
         return;
     }
-    
+
     if (!isValidDate(t.date)) {
         printf("Invalid date format. Use YYYY-MM-DD.\n");
         pause();
@@ -181,14 +175,15 @@ void addTransaction() {
 
     t.totalPrice = t.quantity * p.price;
 
-    // Save transaction
+    // Save transaction record
     fp = fopen("transactions.txt", "a");
     if (!fp) {
         printf("Cannot open transactions file for writing.\n");
         pause();
         return;
     }
-    fprintf(fp, "%s|%s|%d|%s|%.2f\n", t.transactionID, t.productID, t.quantity, t.date, t.totalPrice);
+    fprintf(fp, "%s|%s|%d|%s|%.2f\n",
+            t.transactionID, t.productID, t.quantity, t.date, t.totalPrice);
     fclose(fp);
 
     // Update product stock
@@ -204,19 +199,21 @@ void addTransaction() {
 
     while (fgets(line, sizeof(line), orig)) {
         Product tempProd;
-        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
-                   tempProd.id, tempProd.name, tempProd.category, tempProd.supplierID, 
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f",
+                   tempProd.id, tempProd.name, tempProd.category, tempProd.supplierID,
                    &tempProd.quantity, &tempProd.price) == 6) {
             if (strcmp(tempProd.id, t.productID) == 0) {
                 tempProd.quantity -= t.quantity;
             }
-            fprintf(temp, "%s|%s|%s|%s|%d|%.2f\n", tempProd.id, tempProd.name, 
-                    tempProd.category, tempProd.supplierID, tempProd.quantity, tempProd.price);
+            fprintf(temp, "%s|%s|%s|%s|%d|%.2f\n",
+                    tempProd.id, tempProd.name,
+                    tempProd.category, tempProd.supplierID,
+                    tempProd.quantity, tempProd.price);
         }
     }
     fclose(orig);
     fclose(temp);
-    
+
     if (remove("products.txt") != 0 || rename("temp.txt", "products.txt") != 0) {
         printf("Warning: Error updating product file.\n");
     }
@@ -232,6 +229,7 @@ void addTransaction() {
     pause();
 }
 
+// View all transactions
 void viewTransactions() {
     FILE *fp = fopen("transactions.txt", "r");
     if (!fp) {
@@ -243,12 +241,12 @@ void viewTransactions() {
     Transaction t;
     char line[256];
     int count = 0;
-    
+
     printf("\n%-10s %-12s %-8s %-12s %-10s\n", "Trans ID", "Product ID", "Quantity", "Date", "Total (RM)");
     printf("================================================================\n");
-    
+
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f", 
+        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f",
                    t.transactionID, t.productID, &t.quantity, t.date, &t.totalPrice) == 5) {
             printf("%-10s %-12s %-8d %-12s %-10.2f\n",
                    t.transactionID, t.productID, t.quantity, t.date, t.totalPrice);
@@ -256,7 +254,7 @@ void viewTransactions() {
         }
     }
     fclose(fp);
-    
+
     if (count == 0) {
         printf("No transactions found.\n");
     } else {
@@ -266,6 +264,7 @@ void viewTransactions() {
     pause();
 }
 
+// Update transaction details and stock
 void updateTransaction() {
     char targetID[20];
     printf("Enter Transaction ID to update: ");
@@ -289,15 +288,15 @@ void updateTransaction() {
     Transaction t;
     char line[256];
     int found = 0;
-    int oldQuantity = 0; // Store original quantity
+    int oldQuantity = 0;
 
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f", 
+        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f",
                    t.transactionID, t.productID, &t.quantity, t.date, &t.totalPrice) == 5) {
             if (strcmp(t.transactionID, targetID) == 0) {
                 found = 1;
-                oldQuantity = t.quantity; // Save original quantity
-                
+                oldQuantity = t.quantity;
+
                 printf("Current transaction: %s | Product: %s | Qty: %d | Date: %s\n",
                        t.transactionID, t.productID, t.quantity, t.date);
 
@@ -305,20 +304,19 @@ void updateTransaction() {
                 int newQty;
                 if (scanf("%d", &newQty) != 1 || newQty <= 0) {
                     printf("Invalid quantity.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    fclose(fp); fclose(temp); remove("temp.txt");
                     clearInputBuffer(); pause(); return;
                 }
 
-                // Check if new quantity is available in stock
                 FILE *pf = fopen("products.txt", "r");
                 Product p;
                 float price = 0.0;
                 int currentStock = 0;
                 char prodLine[512];
-                
+
                 if (pf) {
                     while (fgets(prodLine, sizeof(prodLine), pf)) {
-                        if (sscanf(prodLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
+                        if (sscanf(prodLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f",
                                    p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
                             if (strcmp(p.id, t.productID) == 0) {
                                 price = p.price;
@@ -330,12 +328,10 @@ void updateTransaction() {
                     fclose(pf);
                 }
 
-                // Calculate available stock (current stock + old transaction quantity)
                 int availableStock = currentStock + oldQuantity;
                 if (newQty > availableStock) {
-                    printf("Not enough stock. Available: %d (current: %d + returned: %d)\n", 
-                           availableStock, currentStock, oldQuantity);
-                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    printf("Not enough stock. Available: %d\n", availableStock);
+                    fclose(fp); fclose(temp); remove("temp.txt");
                     pause(); return;
                 }
 
@@ -343,7 +339,7 @@ void updateTransaction() {
                 char newDate[20];
                 if (scanf("%19s", newDate) != 1 || !isValidDate(newDate)) {
                     printf("Invalid date format.\n");
-                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    fclose(fp); fclose(temp); remove("temp.txt");
                     pause(); return;
                 }
 
@@ -351,7 +347,6 @@ void updateTransaction() {
                 strcpy(t.date, newDate);
                 t.totalPrice = t.quantity * price;
 
-                // Update product stock - restore old quantity, then subtract new quantity
                 FILE *orig = fopen("products.txt", "r");
                 FILE *prodTemp = fopen("prod_temp.txt", "w");
 
@@ -359,31 +354,30 @@ void updateTransaction() {
                     char stockLine[512];
                     while (fgets(stockLine, sizeof(stockLine), orig)) {
                         Product tempProd;
-                        if (sscanf(stockLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
-                                   tempProd.id, tempProd.name, tempProd.category, 
+                        if (sscanf(stockLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f",
+                                   tempProd.id, tempProd.name, tempProd.category,
                                    tempProd.supplierID, &tempProd.quantity, &tempProd.price) == 6) {
                             if (strcmp(tempProd.id, t.productID) == 0) {
-                                // Restore old quantity and subtract new quantity
                                 tempProd.quantity = tempProd.quantity + oldQuantity - newQty;
                             }
-                            fprintf(prodTemp, "%s|%s|%s|%s|%d|%.2f\n", 
+                            fprintf(prodTemp, "%s|%s|%s|%s|%d|%.2f\n",
                                     tempProd.id, tempProd.name, tempProd.category,
                                     tempProd.supplierID, tempProd.quantity, tempProd.price);
                         }
                     }
                     fclose(orig);
                     fclose(prodTemp);
-                    
+
                     if (remove("products.txt") != 0 || rename("prod_temp.txt", "products.txt") != 0) {
                         printf("Warning: Error updating product stock.\n");
                     }
 
-                    // Log inventory movement
                     FILE *inv = fopen("inventory.txt", "a");
                     if (inv) {
                         int quantityDiff = newQty - oldQuantity;
                         if (quantityDiff != 0) {
-                            fprintf(inv, "%s|%+d|%s|UPDATED\n", t.productID, -quantityDiff, newDate);
+                            fprintf(inv, "%s|%+d|%s|UPDATED\n",
+                                    t.productID, -quantityDiff, newDate);
                         }
                         fclose(inv);
                     }
@@ -393,13 +387,14 @@ void updateTransaction() {
                     printf("Warning: Could not update product stock.\n");
                 }
             }
-            fprintf(temp, "%s|%s|%d|%s|%.2f\n", t.transactionID, t.productID, t.quantity, t.date, t.totalPrice);
+            fprintf(temp, "%s|%s|%d|%s|%.2f\n",
+                    t.transactionID, t.productID, t.quantity, t.date, t.totalPrice);
         }
     }
 
     fclose(fp);
     fclose(temp);
-    
+
     if (remove("transactions.txt") != 0 || rename("temp.txt", "transactions.txt") != 0) {
         printf("Error updating transaction file.\n");
     } else if (found) {
@@ -410,6 +405,7 @@ void updateTransaction() {
     pause();
 }
 
+// Delete a transaction and restore stock
 void deleteTransaction() {
     char targetID[20];
     printf("Enter Transaction ID to delete: ");
@@ -435,16 +431,15 @@ void deleteTransaction() {
     int found = 0;
 
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f", 
+        if (sscanf(line, "%[^|]|%[^|]|%d|%[^|]|%f",
                    t.transactionID, t.productID, &t.quantity, t.date, &t.totalPrice) == 5) {
             if (strcmp(t.transactionID, targetID) != 0) {
                 fprintf(temp, "%s", line);
             } else {
                 found = 1;
-                printf("Deleting transaction: %s (Product: %s, Qty: %d)\n", 
+                printf("Deleting transaction: %s (Product: %s, Qty: %d)\n",
                        t.transactionID, t.productID, t.quantity);
 
-                // Restore quantity to product stock
                 FILE *orig = fopen("products.txt", "r");
                 FILE *prodTemp = fopen("prod_temp.txt", "w");
 
@@ -452,12 +447,12 @@ void deleteTransaction() {
                     Product p;
                     char prodLine[512];
                     while (fgets(prodLine, sizeof(prodLine), orig)) {
-                        if (sscanf(prodLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
+                        if (sscanf(prodLine, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f",
                                    p.id, p.name, p.category, p.supplierID, &p.quantity, &p.price) == 6) {
                             if (strcmp(p.id, t.productID) == 0) {
-                                p.quantity += t.quantity; // Restore stock
+                                p.quantity += t.quantity;
                             }
-                            fprintf(prodTemp, "%s|%s|%s|%s|%d|%.2f\n", 
+                            fprintf(prodTemp, "%s|%s|%s|%s|%d|%.2f\n",
                                     p.id, p.name, p.category, p.supplierID, p.quantity, p.price);
                         }
                     }
@@ -466,7 +461,6 @@ void deleteTransaction() {
                     remove("products.txt");
                     rename("prod_temp.txt", "products.txt");
 
-                    // Log the stock restoration
                     FILE *inv = fopen("inventory.txt", "a");
                     if (inv) {
                         fprintf(inv, "%s|+%d|%s|RESTORED\n", t.productID, t.quantity, t.date);
@@ -483,7 +477,7 @@ void deleteTransaction() {
 
     fclose(fp);
     fclose(temp);
-    
+
     if (remove("transactions.txt") != 0 || rename("temp.txt", "transactions.txt") != 0) {
         printf("Error updating transaction file.\n");
     } else if (found) {

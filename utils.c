@@ -4,6 +4,7 @@
 
 void clearInputBuffer(void);
 
+// Validate date format YYYY-MM-DD
 int isValidDate(const char *date) {
     if (strlen(date) != 10) return 0;
     int year, month, day;
@@ -12,16 +13,15 @@ int isValidDate(const char *date) {
     return 1;
 }
 
-/* Function to pause and wait for user input */
+// Pause for user input
 void pause(void) {
     printf("\nPress Enter to continue...");
-    clearInputBuffer(); // Clear any leftover input first
-    getchar(); // Wait for user to press Enter
+    clearInputBuffer(); // Clear leftover input
+    getchar(); // Wait for Enter
 }
 
-/* Function to clear screen */
+// Clear terminal screen
 void clearScreen(void) {
-    /* Cross-platform screen clearing */
     #ifdef _WIN32
         system("cls");
     #else
@@ -29,7 +29,7 @@ void clearScreen(void) {
     #endif
 }
 
-/* Add clearInputBuffer function if not in utils.h */
+// Flush remaining input buffer
 void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);

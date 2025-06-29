@@ -1,7 +1,7 @@
-#include "product.h"
-
 #ifndef SUPPLIER_H
 #define SUPPLIER_H
+
+#include "product.h"
 
 #define SUPPLIER_FILE "suppliers.txt"
 
@@ -15,13 +15,13 @@ typedef struct {
 int isValidSupplier(const char *id);
 int isValidPhone(const char *phone);
 int isValidEmail(const char *email);
-void addSupplier();
-void viewSuppliers();
-void updateSupplier();
-void deleteSupplier();
+void addSupplier(void);
+void viewSuppliers(void);
+void updateSupplier(void);
+void deleteSupplier(void);
 void filterProductsBySupplier(const char *supplierID);
 void displaySupplierMenu(void);
 void handleSupplierMenuChoice(int choice);
 void supplierManagementMenu(void);
 
-#endif
+#endif /* SUPPLIER_H */

@@ -4,9 +4,7 @@
 #include <ctype.h>
 #include "utils.h"
 
-
-// 1. Low Stock Alert (less than 5)
-// 1. Low Stock Alert (less than 5) - FIXED
+// Displays products with quantity less than 5
 void lowStockAlert() {
     FILE *fp = fopen("products.txt", "r");
     if (!fp) {
@@ -28,7 +26,7 @@ void lowStockAlert() {
     printf("----------------------------------------\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        // Better parsing - handle potential parsing errors
+        // Read fields separated by '|'
         if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
                    id, name, category, supplier, &qty, &price) == 6) {
             if (qty < 5) {
@@ -49,12 +47,12 @@ void lowStockAlert() {
     pause();
 }
 
-// 2. Search Product by Name
+// Searches products by name keyword
 void searchProductByName() {
     char keyword[50];
     printf("Enter keyword to search product name: ");
     if (fgets(keyword, sizeof(keyword), stdin) != NULL) {
-        // Remove newline if present
+        // Remove trailing newline
         size_t len = strlen(keyword);
         if (len > 0 && keyword[len-1] == '\n') {
             keyword[len-1] = '\0';
@@ -85,7 +83,7 @@ void searchProductByName() {
     printf("%-8s %-20s %-10s\n", "ID", "Product Name", "Price (RM)");
     printf("----------------------------------------\n");
     
-    // Convert keyword to lowercase for case-insensitive search
+    // Make keyword lowercase for case-insensitive search
     char lowerKeyword[50];
     strcpy(lowerKeyword, keyword);
     for (int i = 0; lowerKeyword[i]; i++) {
@@ -96,7 +94,7 @@ void searchProductByName() {
         if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|]|%d|%f", 
                    id, name, category, supplier, &qty, &price) == 6) {
             
-            // Convert product name to lowercase for comparison
+            // Convert name to lowercase for matching
             char lowerName[50];
             strcpy(lowerName, name);
             for (int i = 0; lowerName[i]; i++) {
@@ -118,7 +116,7 @@ void searchProductByName() {
     pause();
 }
 
-// 3. Transaction Summary (Total Count)
+// Shows transaction count and total/average value
 void transactionSummary() {
     FILE *fp = fopen("transactions.txt", "r");
     if (!fp) {
@@ -140,8 +138,7 @@ void transactionSummary() {
         // Skip empty lines
         if (strlen(line) > 1) {
             count++;
-            // If transaction format includes amount, try to extract it
-            // Format might be: TransactionID|UserID|ProductID|Quantity|Amount
+            // Try reading amount from the line
             char tid[10], uid[10], pid[10];
             int qty;
             float amount;
@@ -161,7 +158,7 @@ void transactionSummary() {
     pause();
 }
 
-// 4. User Contact Lookup
+// Looks up user contact info by ID
 void findUserContact() {
     char uid[10];
     printf("Enter User ID (e.g., U00001): ");
@@ -187,7 +184,7 @@ void findUserContact() {
     printf("========================================\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        // Better parsing with proper field separation
+        // Read fields from line
         if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|\n]", id, fname, lname, contact) >= 4) {
             if (strcmp(id, uid) == 0) {
                 printf("User ID: %s\n", id);
@@ -207,7 +204,7 @@ void findUserContact() {
     pause();
 }
 
-// 5. Supplier Email Finder
+// Finds and prints supplier email by supplier ID
 void supplierEmailFinder() {
     char sid[10];
     printf("Enter Supplier ID (e.g., S00001): ");
@@ -234,7 +231,7 @@ void supplierEmailFinder() {
     printf("========================================\n");
     
     while (fgets(line, sizeof(line), fp)) {
-        // Better parsing - handle longer addresses
+        // Read supplier data fields
         if (sscanf(line, "%[^|]|%[^|]|%[^|]|%[^|\n]", id, name, address, email) >= 4) {
             if (strcmp(id, sid) == 0) {
                 printf("Supplier ID: %s\n", id);
@@ -255,6 +252,7 @@ void supplierEmailFinder() {
     pause();
 }
 
+// Displays advanced features menu and handles user choices
 void advancedFeaturesMenu() {
     int choice;
     

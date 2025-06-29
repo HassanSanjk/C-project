@@ -6,16 +6,16 @@
 #include <string.h>
 #include <ctype.h>
 
-/* File paths for data files */
+// Data file paths
 #define PRODUCTS_FILE "products.txt"
 #define TRANSACTIONS_FILE "transactions.txt"
 #define USERS_FILE "users.txt"
 #define SUPPLIERS_FILE "suppliers.txt"
 
-/* Low stock threshold */
+// Threshold for low stock alert
 #define LOW_STOCK_THRESHOLD 5
 
-/* Function Prototypes */
+// Advanced features function prototypes
 void pause(void);
 void lowStockAlert(void);
 void searchProductByName(void);
@@ -25,6 +25,5 @@ void supplierEmailFinder(void);
 void displayAdvancedMenu(void);
 void advancedFeaturesMenu(void);
 void handleAdvancedMenuChoice(int choice);
-void advancedFeaturesMenu(void);
 
-#endif /* ADVANCE_H */
+#endif // ADVANCE_H
