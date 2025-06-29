@@ -406,26 +406,41 @@ void generateInventoryReport() {
     }
 
     InventoryRecord r;
-    char line[256];
+    char line[512]; // Larger buffer
     int totalRecords = 0, inCount = 0, outCount = 0;
     int totalIn = 0, totalOut = 0;
 
-    printf("=== INVENTORY REPORT ===\n");
     printf("%-10s %-8s %-12s %-8s\n", "Product", "Change", "Date", "Action");
     printf("--------------------------------------------\n");
 
     while (fgets(line, sizeof(line), fp)) {
-        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
-            printf("%-10s %-8d %-12s %-8s\n", r.productID, r.stockChange, r.date, r.action);
-            totalRecords++;
-            
-            if (strcmp(r.action, "IN") == 0) {
-                inCount++;
-                totalIn += r.stockChange;
-            } else if (strcmp(r.action, "OUT") == 0) {
-                outCount++;
-                totalOut += abs(r.stockChange);
-            }
+        // Remove newline if present
+        line[strcspn(line, "\n")] = 0;
+        
+        // Skip empty lines
+        if (strlen(line) == 0) continue;
+        
+        // Parse with safer approach - handle both +/- and plain numbers
+        char productID[32], date[32], action[16];
+        int stockChange;
+        
+        int parsed = sscanf(line, "%31[^|]|%d|%31[^|]|%15s", 
+                           productID, &stockChange, date, action);
+        
+        if (parsed != 4) {
+            printf("Warning: Skipping malformed line: %s\n", line);
+            continue;
+        }
+        
+        printf("%-10s %-8d %-12s %-8s\n", productID, stockChange, date, action);
+        totalRecords++;
+        
+        if (strcmp(action, "IN") == 0) {
+            inCount++;
+            totalIn += stockChange;
+        } else if (strcmp(action, "OUT") == 0) {
+            outCount++;
+            totalOut += abs(stockChange);
         }
     }
 
