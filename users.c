@@ -5,15 +5,18 @@
 #include "utils.h"
 #include "users.h"
 
-// === User Management ===
-/* Function to display user management submenu */
+/* Function to display user management menu */
 void displayUserMenu(void) {
-    printf("\n--- User Management ---\n");
-    printf("1. Add User\n");
-    printf("2. View All Users\n");
-    printf("3. Update User\n");
-    printf("4. Delete User\n");
-    printf("0. Back to User & Transaction Menu\n");
+    printf("\n========================================\n");
+    printf("         USER MANAGEMENT\n");
+    printf("========================================\n");
+    printf("| 1. Add User                      |\n");
+    printf("| 2. View All Users                |\n");
+    printf("| 3. Update User                   |\n");
+    printf("| 4. Delete User                   |\n");
+    printf("| 0. Back to Main Menu             |\n");
+    printf("========================================\n");
+    printf("Enter your choice: ");
 }
 
 /* Function to handle user menu choices */
@@ -22,32 +25,25 @@ void handleUserMenuChoice(int choice) {
         case 1:
             printf("\n=== ADD USER ===\n");
             addUser();
-            printf("User added successfully!\n");
-            pause();
             break;
             
         case 2:
             printf("\n=== ALL USERS ===\n");
             viewUsers();
-            pause();
             break;
             
         case 3:
             printf("\n=== UPDATE USER ===\n");
             updateUser();
-            printf("User updated successfully!\n");
-            pause();
             break;
             
         case 4:
             printf("\n=== DELETE USER ===\n");
             deleteUser();
-            printf("User deletion completed!\n");
-            pause();
             break;
             
         case 0:
-            /* Back to user & transaction menu - handled in loop */
+            /* Back to main menu - handled in loop */
             break;
             
         default:
@@ -60,11 +56,16 @@ void handleUserMenuChoice(int choice) {
 /* Main users management menu function */
 void userManagementMenu(void) {
     int choice;
+    
     do {
         clearScreen();
         displayUserMenu();
-        printf("Select: ");
-        scanf("%d", &choice);
+        
+        if (scanf("%d", &choice) != 1) {
+            choice = -1;
+        }
+        clearInputBuffer();
+        
         handleUserMenuChoice(choice);
         
     } while (choice != 0);
@@ -82,7 +83,9 @@ int isValidContact(const char *contact) {
     int len = strlen(contact);
     if (len < 5 || len > 15) return 0;
     for (int i = 0; i < len; i++) {
-        if (!isdigit(contact[i])) return 0;
+        if (!isdigit(contact[i]) && contact[i] != '+' && contact[i] != '-' && contact[i] != ' ') {
+            return 0;
+        }
     }
     return 1;
 }
@@ -90,12 +93,14 @@ int isValidContact(const char *contact) {
 int userExists(const char *userID) {
     FILE *fp = fopen("users.txt", "r");
     if (!fp) return 0;
-    char line[200], id[20];
+    
+    char line[256], id[20];
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]", id);
-        if (strcmp(id, userID) == 0) {
-            fclose(fp);
-            return 1;
+        if (sscanf(line, "%[^|]", id) == 1) {
+            if (strcmp(id, userID) == 0) {
+                fclose(fp);
+                return 1;
+            }
         }
     }
     fclose(fp);
@@ -104,13 +109,20 @@ int userExists(const char *userID) {
 
 void addUser() {
     User u;
+    
     printf("Enter User ID (e.g., U00001): ");
-    scanf("%s", u.userID);
-    if (!isValidUserID(u.userID)) {
-        printf("Invalid User ID format.\n");
+    if (scanf("%19s", u.userID) != 1) {
+        printf("Invalid input.\n");
         pause();
         return;
     }
+    
+    if (!isValidUserID(u.userID)) {
+        printf("Invalid User ID format. Use U followed by 5 digits.\n");
+        pause();
+        return;
+    }
+    
     if (userExists(u.userID)) {
         printf("User ID already exists.\n");
         pause();
@@ -118,154 +130,190 @@ void addUser() {
     }
 
     printf("Enter First Name: ");
-    scanf(" %[^\n]", u.firstName);
+    if (scanf(" %49[^\n]", u.firstName) != 1) {
+        printf("Invalid input.\n");
+        pause();
+        return;
+    }
+    
     printf("Enter Last Name: ");
-    scanf(" %[^\n]", u.lastName);
+    if (scanf(" %49[^\n]", u.lastName) != 1) {
+        printf("Invalid input.\n");
+        pause();
+        return;
+    }
 
-    printf("Enter Contact Number (5 to 15 digits): ");
-    scanf(" %[^\n]", u.contact);
+    printf("Enter Contact Number (5-15 digits, +/- allowed): ");
+    if (scanf(" %19[^\n]", u.contact) != 1) {
+        printf("Invalid input.\n");
+        pause();
+        return;
+    }
+    
     if (!isValidContact(u.contact)) {
-        printf("Invalid contact number.\n");
+        printf("Invalid contact number format.\n");
         pause();
         return;
     }
 
     FILE *fp = fopen("users.txt", "a");
     if (!fp) {
-        printf("Cannot open users file.\n");
+        printf("Cannot open users file for writing.\n");
         pause();
         return;
     }
 
     fprintf(fp, "%s|%s|%s|%s\n", u.userID, u.firstName, u.lastName, u.contact);
     fclose(fp);
-    printf("User added.\n");
+    
+    printf("User added successfully.\n");
     pause();
 }
 
 void viewUsers() {
     FILE *fp = fopen("users.txt", "r");
     if (!fp) {
-        printf("Cannot open users file.\n");
+        printf("No users found or cannot open file.\n");
         pause();
         return;
     }
 
     User u;
-    char line[200];
-    printf("\n--- User List ---\n");
+    char line[256];
+    int count = 0;
+    
+    printf("\n%-8s %-15s %-15s %-15s\n", "User ID", "First Name", "Last Name", "Contact");
+    printf("==========================================================\n");
+    
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact);
-        printf("ID: %s | Name: %s %s | Contact: %s\n", u.userID, u.firstName, u.lastName, u.contact);
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact) == 4) {
+            printf("%-8s %-15s %-15s %-15s\n", u.userID, u.firstName, u.lastName, u.contact);
+            count++;
+        }
     }
     fclose(fp);
+    
+    if (count == 0) {
+        printf("No users found.\n");
+    } else {
+        printf("==========================================================\n");
+        printf("Total users: %d\n", count);
+    }
     pause();
 }
 
 void updateUser() {
-    char targetID[10];
+    char targetID[20];
     printf("Enter User ID to update: ");
-    scanf("%s", targetID);
+    if (scanf("%19s", targetID) != 1) {
+        printf("Invalid input.\n");
+        pause();
+        return;
+    }
 
     FILE *fp = fopen("users.txt", "r");
     FILE *temp = fopen("temp.txt", "w");
+    
     if (!fp || !temp) {
         printf("Error opening files.\n");
+        if (fp) fclose(fp);
+        if (temp) fclose(temp);
         pause();
         return;
     }
 
     User u;
-    char line[200];
+    char line[256];
     int found = 0;
+    
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact);
-        if (strcmp(u.userID, targetID) == 0) {
-            found = 1;
-            printf("Enter new First Name: ");
-            scanf(" %[^\n]", u.firstName);
-            printf("Enter new Last Name: ");
-            scanf(" %[^\n]", u.lastName);
-            printf("Enter new Contact Number (5 to 15 digits): ");
-            scanf(" %[^\n]", u.contact);
-            if (!isValidContact(u.contact)) {
-                printf("Invalid contact number.\n");
-                fclose(fp); fclose(temp); remove("temp.txt"); pause(); return;
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact) == 4) {
+            if (strcmp(u.userID, targetID) == 0) {
+                found = 1;
+                printf("Current user: %s %s (Contact: %s)\n", u.firstName, u.lastName, u.contact);
+                
+                printf("Enter new First Name: ");
+                if (scanf(" %49[^\n]", u.firstName) != 1) {
+                    printf("Invalid input.\n");
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    pause(); return;
+                }
+                
+                printf("Enter new Last Name: ");
+                if (scanf(" %49[^\n]", u.lastName) != 1) {
+                    printf("Invalid input.\n");
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    pause(); return;
+                }
+                
+                printf("Enter new Contact Number: ");
+                if (scanf(" %19[^\n]", u.contact) != 1 || !isValidContact(u.contact)) {
+                    printf("Invalid contact number.\n");
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
+                    pause(); return;
+                }
             }
+            fprintf(temp, "%s|%s|%s|%s\n", u.userID, u.firstName, u.lastName, u.contact);
         }
-        fprintf(temp, "%s|%s|%s|%s\n", u.userID, u.firstName, u.lastName, u.contact);
     }
 
     fclose(fp);
     fclose(temp);
-    remove("users.txt");
-    rename("temp.txt", "users.txt");
-
-    if (found)
-        printf("User updated.\n");
-    else
+    
+    if (remove("users.txt") != 0 || rename("temp.txt", "users.txt") != 0) {
+        printf("Error updating user file.\n");
+    } else if (found) {
+        printf("User updated successfully.\n");
+    } else {
         printf("User not found.\n");
+    }
     pause();
 }
 
 void deleteUser() {
-    char targetID[10];
+    char targetID[20];
     printf("Enter User ID to delete: ");
-    scanf("%s", targetID);
+    if (scanf("%19s", targetID) != 1) {
+        printf("Invalid input.\n");
+        pause();
+        return;
+    }
 
     FILE *fp = fopen("users.txt", "r");
     FILE *temp = fopen("temp.txt", "w");
+    
     if (!fp || !temp) {
         printf("Error opening files.\n");
+        if (fp) fclose(fp);
+        if (temp) fclose(temp);
         pause();
         return;
     }
 
     User u;
-    char line[200];
+    char line[256];
     int found = 0;
+    
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact);
-        if (strcmp(u.userID, targetID) != 0) {
-            fprintf(temp, "%s", line);
-        } else {
-            found = 1;
+        if (sscanf(line, "%[^|]|%[^|]|%[^|]|%s", u.userID, u.firstName, u.lastName, u.contact) == 4) {
+            if (strcmp(u.userID, targetID) != 0) {
+                fprintf(temp, "%s", line);
+            } else {
+                found = 1;
+                printf("Deleting user: %s %s (ID: %s)\n", u.firstName, u.lastName, u.userID);
+            }
         }
     }
 
     fclose(fp);
     fclose(temp);
-    remove("users.txt");
-    rename("temp.txt", "users.txt");
-
-    if (found)
-        printf("User deleted.\n");
-    else
+    
+    if (remove("users.txt") != 0 || rename("temp.txt", "users.txt") != 0) {
+        printf("Error updating user file.\n");
+    } else if (found) {
+        printf("User deleted successfully.\n");
+    } else {
         printf("User not found.\n");
+    }
     pause();
-}
-
-
-// users.c
-void userMenu() {
-    int choice;
-    do {
-        printf("\n--- User Menu ---\n");
-        printf("1. Add User\n");
-        printf("2. View Users\n");
-        printf("3. Update User\n");
-        printf("4. Delete User\n");
-        printf("0. Exit\n");
-        printf("Select: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1: addUser(); break;
-            case 2: viewUsers(); break;
-            case 3: updateUser(); break;
-            case 4: deleteUser(); break;
-            case 0: printf("Exiting User Menu.\n"); break;
-            default: printf("Invalid option. Please choose a number between 0 and 4.\n"); pause(); break;
-        }
-    } while (choice != 0);
 }

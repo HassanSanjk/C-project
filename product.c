@@ -2,7 +2,7 @@
 #include "utils.h"
 
 // Check if an ID exists in a file (generic) - from your friend's code
-int existsInFile(const char *filename, const char *targetID) {
+int exists_in_file(const char *filename, const char *targetID) {
     FILE *fp = fopen(filename, "r");
     if (!fp) return 0;
     char line[256], id[20];
@@ -18,7 +18,7 @@ int existsInFile(const char *filename, const char *targetID) {
 }
 
 // Validation functions
-int isValidProductID(const char *id) {
+int isValidProduct(const char *id) {
     if (id[0] != 'P' || strlen(id) != 6) return 0;
     for (int i = 1; i < 6; i++) {
         if (!isdigit(id[i])) return 0;
@@ -101,12 +101,12 @@ void addProduct() {
     // Product ID validation
     getStringInput(idInput, sizeof(idInput), "Enter Product ID (e.g., P00001): ");
     
-    if (!isValidProductID(idInput)) {
+    if (!isValidProduct(idInput)) {
         printf("Invalid Product ID format. Must start with 'P' followed by 5 digits.\n");
         return;
     }
     
-    if (existsInFile(PRODUCT_FILE, idInput)) {
+    if (exists_in_file(PRODUCT_FILE, idInput)) {
         printf("Product ID already exists.\n");
         return;
     }
@@ -127,7 +127,7 @@ void addProduct() {
         return;
     }
     
-    if (!existsInFile(CATEGORY_FILE, p.category)) {
+    if (!exists_in_file(CATEGORY_FILE, p.category)) {
         printf("Warning: Category ID does not exist. Creating product anyway.\n");
         printf("Note: Please ensure the category exists for proper referential integrity.\n");
     }
@@ -140,7 +140,7 @@ void addProduct() {
         return;
     }
     
-    if (!existsInFile(SUPPLIER_FILE, p.supplierID)) {
+    if (!exists_in_file(SUPPLIER_FILE, p.supplierID)) {
         printf("Warning: Supplier ID does not exist. Creating product anyway.\n");
         printf("Note: Please ensure the supplier exists for proper referential integrity.\n");
     }

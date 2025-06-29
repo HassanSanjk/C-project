@@ -6,78 +6,56 @@
 #include "product.h"
 #include "utils.h"
 
-
-
 /* Function to display inventory management menu */
 void displayInventoryMenu(void) {
-    printf("\n--- Inventory Menu ---\n");
-    printf("1. Add Inventory Item\n");
-    printf("2. View All Inventory\n");
-    printf("3. Update Inventory Item\n");
-    printf("4. Remove Inventory Item\n");
-    printf("5. View Low Stock Items\n");
-    printf("6. Generate Inventory Report\n");
-    printf("0. Back to Main Menu\n");
+    printf("\n========================================\n");
+    printf("   INVENTORY & STOCK MANAGEMENT\n");
+    printf("========================================\n");
+    printf("| 1. Add Inventory Record          |\n");
+    printf("| 2. View All Inventory Records    |\n");
+    printf("| 3. Update Inventory Record       |\n");
+    printf("| 4. Delete Inventory Record       |\n");
+    printf("| 5. View Low Stock Items          |\n");
+    printf("| 6. Generate Inventory Report     |\n");
+    printf("| 0. Back to Main Menu             |\n");
+    printf("========================================");
+    printf("\nEnter your choice: ");
 }
 
 void handleInventoryMenuChoice(int choice) {
-    static InventoryNode *inventoryList = NULL;
-    
-    // Load inventory on first access
-    if (inventoryList == NULL && choice > 0 && choice < 7) {
-        inventoryList = loadInventoryFromFile();
-    }
-    
     switch (choice) {
         case 1:
-            printf("\n=== ADD INVENTORY ITEM ===\n");
-            addInventoryItem(&inventoryList);
-            saveInventoryToFile(inventoryList);
-            printf("Inventory item added successfully!\n");
-            pause();
+            printf("\n=== ADD INVENTORY RECORD ===\n");
+            addInventoryRecord();
             break;
             
         case 2:
-            printf("\n=== ALL INVENTORY ITEMS ===\n");
-            viewInventory(inventoryList);
-            pause();
+            printf("\n=== ALL INVENTORY RECORDS ===\n");
+            readInventoryRecords();
             break;
             
         case 3:
-            printf("\n=== UPDATE INVENTORY ITEM ===\n");
-            updateInventoryItem(inventoryList);
-            saveInventoryToFile(inventoryList);
-            printf("Inventory item updated successfully!\n");
-            pause();
+            printf("\n=== UPDATE INVENTORY RECORD ===\n");
+            updateInventoryRecord();
             break;
             
         case 4:
-            printf("\n=== REMOVE INVENTORY ITEM ===\n");
-            removeInventoryItem(&inventoryList);
-            saveInventoryToFile(inventoryList);
-            printf("Inventory item removed successfully!\n");
-            pause();
+            printf("\n=== DELETE INVENTORY RECORD ===\n");
+            deleteInventoryRecord();
             break;
             
         case 5:
             printf("\n=== LOW STOCK ITEMS ===\n");
-            showLowStockOnly(inventoryList);
-            pause();
+            showLowStockItems();
             break;
             
         case 6:
             printf("\n=== INVENTORY REPORT ===\n");
-            generateInventoryReport(inventoryList);
-            pause();
+            generateInventoryReport();
             break;
             
         case 0:
-            /* Save and free memory before returning to main menu */
-            if (inventoryList != NULL) {
-                saveInventoryToFile(inventoryList);
-                freeInventoryList(inventoryList);
-                inventoryList = NULL;
-            }
+            /* Back to main menu */
             break;
             
         default:
@@ -94,29 +72,56 @@ void inventoryManagementMenu(void) {
     do {
         clearScreen();
         displayInventoryMenu();
-        printf("Select: ");
-        scanf("%d", &choice);
+        
+        if (scanf("%d", &choice) != 1) {
+            choice = -1;
+        }
+        clearInputBuffer();
+        
         handleInventoryMenuChoice(choice);
         
     } while (choice != 0);
 }
 
+/* Helper function to check if product ID exists */
+int existsInFile(const char *filename, const char *productID) {
+    FILE *fp = fopen(filename, "r");
+    if (!fp) return 0;
+    
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        if (strncmp(line, productID, strlen(productID)) == 0) {
+            fclose(fp);
+            return 1;
+        }
+    }
+    fclose(fp);
+    return 0;
+}
 
-// Inventory Struct
-typedef struct {
-    char productID[10];
-    int stockChange;
-    char date[20];
-    char action[4]; // IN or OUT
-} InventoryRecord;
-
+/* Helper function to validate product ID format */
+int isValidProductID(const char *productID) {
+    if (strlen(productID) != 6) return 0;
+    if (productID[0] != 'P') return 0;
+    for (int i = 1; i < 6; i++) {
+        if (!isdigit(productID[i])) return 0;
+    }
+    return 1;
+}
 
 // Add Inventory Record
 void addInventoryRecord() {
     InventoryRecord r;
 
     printf("Enter Product ID (e.g., P00001): ");
-    scanf("%s", r.productID);
+    if (scanf("%9s", r.productID) != 1) {
+        printf("Invalid input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
+    
     if (!isValidProductID(r.productID)) {
         printf("Invalid Product ID format.\n");
         pause();
@@ -131,20 +136,36 @@ void addInventoryRecord() {
     printf("Enter Stock Change (number only): ");
     if (scanf("%d", &r.stockChange) != 1) {
         printf("Invalid stock change input.\n");
+        clearInputBuffer();
         pause();
         return;
     }
+    clearInputBuffer();
 
     printf("Enter Date (YYYY-MM-DD): ");
-    scanf("%s", r.date);
+    if (scanf("%19s", r.date) != 1) {
+        printf("Invalid date input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
+    
     if (!isValidDate(r.date)) {
-        printf("Invalid date format or year too early. Must be YYYY-MM-DD and year must be at least 2025.\n");
+        printf("Invalid date format. Must be YYYY-MM-DD and year must be at least 2025.\n");
         pause();
         return;
     }
 
     printf("Enter Action (IN/OUT): ");
-    scanf("%s", r.action);
+    if (scanf("%3s", r.action) != 1) {
+        printf("Invalid action input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
+    
     if (strcmp(r.action, "IN") != 0 && strcmp(r.action, "OUT") != 0) {
         printf("Action must be 'IN' or 'OUT' only.\n");
         pause();
@@ -159,7 +180,7 @@ void addInventoryRecord() {
     }
     fprintf(fp, "%s|%+d|%s|%s\n", r.productID, r.stockChange, r.date, r.action);
     fclose(fp);
-    printf("Inventory record added.\n");
+    printf("Inventory record added successfully!\n");
     pause();
 }
 
@@ -167,19 +188,31 @@ void addInventoryRecord() {
 void readInventoryRecords() {
     FILE *fp = fopen("inventory.txt", "r");
     if (!fp) {
-        printf("Cannot open inventory file.\n");
+        printf("No inventory records found or cannot open inventory file.\n");
         pause();
         return;
     }
 
     InventoryRecord r;
     char line[256];
-    printf("\n--- Inventory Records ---\n");
+    int count = 0;
+    
+    printf("%-10s %-8s %-12s %-8s\n", "Product", "Change", "Date", "Action");
+    printf("--------------------------------------------\n");
+    
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action);
-        printf("Product: %s | Change: %d | Date: %s | Action: %s\n",
-               r.productID, r.stockChange, r.date, r.action);
+        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
+            printf("%-10s %-8d %-12s %-8s\n", r.productID, r.stockChange, r.date, r.action);
+            count++;
+        }
     }
+    
+    if (count == 0) {
+        printf("No inventory records found.\n");
+    } else {
+        printf("\nTotal records: %d\n", count);
+    }
+    
     fclose(fp);
     pause();
 }
@@ -187,15 +220,36 @@ void readInventoryRecords() {
 // Update Record
 void updateInventoryRecord() {
     char targetID[10], targetDate[20];
+    
     printf("Enter Product ID to update: ");
-    scanf("%s", targetID);
-    printf("Enter Date of record to update: ");
-    scanf("%s", targetDate);
+    if (scanf("%9s", targetID) != 1) {
+        printf("Invalid input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
+    
+    printf("Enter Date of record to update (YYYY-MM-DD): ");
+    if (scanf("%19s", targetDate) != 1) {
+        printf("Invalid input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
 
     FILE *fp = fopen("inventory.txt", "r");
-    FILE *temp = fopen("temp.txt", "w");
-    if (!fp || !temp) {
-        printf("Error opening files.\n");
+    if (!fp) {
+        printf("Cannot open inventory file.\n");
+        pause();
+        return;
+    }
+    
+    FILE *temp = fopen("data/temp.txt", "w");
+    if (!temp) {
+        printf("Error creating temporary file.\n");
+        fclose(fp);
         pause();
         return;
     }
@@ -205,35 +259,51 @@ void updateInventoryRecord() {
     int found = 0;
 
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action);
-        if (strcmp(r.productID, targetID) == 0 && strcmp(r.date, targetDate) == 0) {
-            found = 1;
+        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
+            if (strcmp(r.productID, targetID) == 0 && strcmp(r.date, targetDate) == 0) {
+                found = 1;
+                printf("Current record: %s | %d | %s | %s\n", 
+                       r.productID, r.stockChange, r.date, r.action);
 
-            printf("New Stock Change: ");
-            if (scanf("%d", &r.stockChange) != 1) {
-                printf("Invalid input.\n");
-                fclose(fp); fclose(temp); remove("temp.txt"); pause(); return;
-            }
+                printf("New Stock Change: ");
+                if (scanf("%d", &r.stockChange) != 1) {
+                    printf("Invalid input.\n");
+                    clearInputBuffer();
+                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    pause(); return;
+                }
+                clearInputBuffer();
 
-            printf("New Action (IN/OUT): ");
-            scanf("%s", r.action);
-            if (strcmp(r.action, "IN") != 0 && strcmp(r.action, "OUT") != 0) {
-                printf("Invalid action.\n");
-                fclose(fp); fclose(temp); remove("temp.txt"); pause(); return;
+                printf("New Action (IN/OUT): ");
+                if (scanf("%3s", r.action) != 1) {
+                    printf("Invalid input.\n");
+                    clearInputBuffer();
+                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    pause(); return;
+                }
+                clearInputBuffer();
+                
+                if (strcmp(r.action, "IN") != 0 && strcmp(r.action, "OUT") != 0) {
+                    printf("Invalid action.\n");
+                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    pause(); return;
+                }
             }
+            fprintf(temp, "%s|%+d|%s|%s\n", r.productID, r.stockChange, r.date, r.action);
         }
-        fprintf(temp, "%s|%+d|%s|%s\n", r.productID, r.stockChange, r.date, r.action);
     }
 
     fclose(fp);
     fclose(temp);
-    remove("inventory.txt");
-    rename("temp.txt", "inventory.txt");
 
-    if (found)
-        printf("Inventory record updated.\n");
-    else
+    if (found) {
+        remove("inventory.txt");
+        rename("data/temp.txt", "inventory.txt");
+        printf("Inventory record updated successfully!\n");
+    } else {
+        remove("data/temp.txt");
         printf("Record not found.\n");
+    }
 
     pause();
 }
@@ -241,23 +311,42 @@ void updateInventoryRecord() {
 // Delete Record
 void deleteInventoryRecord() {
     char targetID[10], targetDate[20];
+    
     printf("Enter Product ID to delete: ");
-    scanf("%s", targetID);
+    if (scanf("%9s", targetID) != 1) {
+        printf("Invalid input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
 
-    // ✅ Check if Product ID exists in products.txt
     if (!existsInFile("products.txt", targetID)) {
-        printf("Product ID not found.\n");
+        printf("Product ID not found in products.\n");
         pause();
         return;
     }
 
-    printf("Enter Date of record to delete: ");
-    scanf("%s", targetDate);
+    printf("Enter Date of record to delete (YYYY-MM-DD): ");
+    if (scanf("%19s", targetDate) != 1) {
+        printf("Invalid input!\n");
+        clearInputBuffer();
+        pause();
+        return;
+    }
+    clearInputBuffer();
 
     FILE *fp = fopen("inventory.txt", "r");
-    FILE *temp = fopen("temp.txt", "w");
-    if (!fp || !temp) {
-        printf("Error opening files.\n");
+    if (!fp) {
+        printf("Cannot open inventory file.\n");
+        pause();
+        return;
+    }
+    
+    FILE *temp = fopen("data/temp.txt", "w");
+    if (!temp) {
+        printf("Error creating temporary file.\n");
+        fclose(fp);
         pause();
         return;
     }
@@ -267,304 +356,106 @@ void deleteInventoryRecord() {
     int found = 0;
 
     while (fgets(line, sizeof(line), fp)) {
-        sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action);
-        if (strcmp(r.productID, targetID) == 0 && strcmp(r.date, targetDate) == 0) {
-            found = 1;
-            continue;
+        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
+            if (strcmp(r.productID, targetID) == 0 && strcmp(r.date, targetDate) == 0) {
+                found = 1;
+                printf("Deleting record: %s | %d | %s | %s\n", 
+                       r.productID, r.stockChange, r.date, r.action);
+                continue;
+            }
+            fprintf(temp, "%s", line);
         }
-        fprintf(temp, "%s", line);
     }
 
     fclose(fp);
     fclose(temp);
-    remove("inventory.txt");
-    rename("temp.txt", "inventory.txt");
 
-    if (found)
-        printf("Inventory record deleted.\n");
-    else
+    if (found) {
+        remove("inventory.txt");
+        rename("data/temp.txt", "inventory.txt");
+        printf("Inventory record deleted successfully!\n");
+    } else {
+        remove("data/temp.txt");
         printf("Record not found.\n");
+    }
 
     pause();
 }
 
-
-void inventoryMenu() {
-    int choice;
-    do {
-        printf("\n--- Inventory Menu ---\n");
-        printf("1. Add Inventory Record\n");
-        printf("2. View Inventory Records\n");
-        printf("3. Update Inventory Record\n");
-        printf("4. Delete Inventory Record\n");
-        printf("0. Exit\n");
-        printf("Select: ");
-        scanf("%d", &choice);
-
-        switch (choice) {
-            case 1: addInventoryRecord(); break;
-            case 2: readInventoryRecords(); break;
-            case 3: updateInventoryRecord(); break;
-            case 4: deleteInventoryRecord(); break;
-            case 0: printf("Exiting Inventory Menu.\n"); break;
-            default: printf("Invalid option. Please choose 0–4.\n"); pause(); break;
-        }
-    } while (choice != 0);
-}
-
-
-
-
-
-// Load inventory from inventory.txt
-InventoryNode* loadInventoryFromFile() {
-    FILE *file = fopen(INVENTORY_FILE, "r");
-    if (file == NULL) {
-        printf("Warning: Could not open %s. Starting with empty inventory.\n", INVENTORY_FILE);
-        return NULL;
-    }
-
-    InventoryNode *head = NULL, *tail = NULL;
-    Inventory temp;
-
-    while (fscanf(file, "%s %d %d", temp.productID, &temp.quantity, &temp.lowStockThreshold) == 3) {
-        InventoryNode *newNode = (InventoryNode *)malloc(sizeof(InventoryNode));
-        if (!newNode) {
-            printf("Memory allocation failed.\n");
-            fclose(file);
-            freeInventoryList(head);
-            return NULL;
-        }
-        newNode->data = temp;
-        newNode->next = NULL;
-
-        if (head == NULL)
-            head = tail = newNode;
-        else {
-            tail->next = newNode;
-            tail = newNode;
-        }
-    }
-
-    fclose(file);
-    return head;
-}
-
-// Free memory used by linked list
-void freeInventoryList(InventoryNode *head) {
-    InventoryNode *current = head;
-    while (current != NULL) {
-        InventoryNode *temp = current;
-        current = current->next;
-        free(temp);
-    }
-}
-
-// View all inventory items
-void viewInventory(InventoryNode *head) {
-    if (head == NULL) {
-        printf("Inventory is empty.\n");
+// Show Low Stock Items
+void showLowStockItems() {
+    FILE *fp = fopen("inventory.txt", "r");
+    if (!fp) {
+        printf("No inventory records found.\n");
+        pause();
         return;
     }
 
-    printf("\n%-15s %-10s %-20s\n", "Product ID", "Quantity", "Low Stock Threshold");
-    printf("------------------------------------------------------\n");
-
-    InventoryNode *current = head;
-    while (current != NULL) {
-        printf("%-15s %-10d %-20d\n",
-               current->data.productID,
-               current->data.quantity,
-               current->data.lowStockThreshold);
-        current = current->next;
-    }
-}
-
-
-void saveInventoryToFile(InventoryNode *head) {
-    FILE *file = fopen(INVENTORY_FILE, "w");
-    if (file == NULL) {
-        printf("Error: Could not open %s for writing.\n", INVENTORY_FILE);
-        return;
-    }
-
-    InventoryNode *current = head;
-    while (current != NULL) {
-        fprintf(file, "%s %d %d\n",
-                current->data.productID,
-                current->data.quantity,
-                current->data.lowStockThreshold);
-        current = current->next;
-    }
-
-    fclose(file);
-}
-
-
-void addInventoryItem(InventoryNode **head) {
-    Inventory newInv;
-    printf("\nEnter Product ID: ");
-    scanf("%s", newInv.productID);
-
-    printf("Enter Quantity: ");
-    while (scanf("%d", &newInv.quantity) != 1 || newInv.quantity < 0) {
-        printf("Invalid input. Enter a non-negative quantity: ");
-        while (getchar() != '\n'); // clear input buffer
-    }
-
-    printf("Enter Low Stock Threshold: ");
-    while (scanf("%d", &newInv.lowStockThreshold) != 1 || newInv.lowStockThreshold < 0) {
-        printf("Invalid input. Enter a non-negative threshold: ");
-        while (getchar() != '\n');
-    }
-
-    // Create new node
-    InventoryNode *newNode = (InventoryNode *)malloc(sizeof(InventoryNode));
-    if (!newNode) {
-        printf("Memory allocation failed.\n");
-        return;
-    }
-
-    newNode->data = newInv;
-    newNode->next = NULL;
-
-    // Insert at end of list
-    if (*head == NULL) {
-        *head = newNode;
-    } else {
-        InventoryNode *temp = *head;
-        while (temp->next != NULL) temp = temp->next;
-        temp->next = newNode;
-    }
-
-    // Save updated list
-    saveInventoryToFile(*head);
-    printf("Inventory item added successfully.\n");
-}
-
-void updateInventoryItem(InventoryNode *head) {
-    char productID[10];
-    printf("Enter Product ID to update: ");
-    scanf("%s", productID);
-
-    InventoryNode *current = head;
-    while (current != NULL) {
-        if (strcmp(current->data.productID, productID) == 0) {
-            printf("Current Quantity: %d\n", current->data.quantity);
-            printf("Enter new Quantity: ");
-            while (scanf("%d", &current->data.quantity) != 1 || current->data.quantity < 0) {
-                printf("Invalid input. Enter non-negative quantity: ");
-                while (getchar() != '\n');
-            }
-
-            printf("Current Threshold: %d\n", current->data.lowStockThreshold);
-            printf("Enter new Low Stock Threshold: ");
-            while (scanf("%d", &current->data.lowStockThreshold) != 1 || current->data.lowStockThreshold < 0) {
-                printf("Invalid input. Enter non-negative threshold: ");
-                while (getchar() != '\n');
-            }
-
-            saveInventoryToFile(head);
-            printf("Inventory item updated successfully.\n");
-            return;
-        }
-        current = current->next;
-    }
-
-    printf("Product ID not found.\n");
-}
-
-void removeInventoryItem(InventoryNode **head) {
-    char productID[10];
-    printf("Enter Product ID to remove: ");
-    scanf("%s", productID);
-
-    InventoryNode *current = *head, *prev = NULL;
-
-    while (current != NULL) {
-        if (strcmp(current->data.productID, productID) == 0) {
-            if (prev == NULL) {
-                *head = current->next;  // First node
-            } else {
-                prev->next = current->next;
-            }
-            free(current);
-            saveInventoryToFile(*head);
-            printf("Inventory item removed.\n");
-            return;
-        }
-        prev = current;
-        current = current->next;
-    }
-
-    printf("Product ID not found.\n");
-}
-
-void checkLowStock(InventoryNode *head) {
+    InventoryRecord r;
+    char line[256];
     int found = 0;
-    printf("\nLow Stock Items:\n");
-    printf("%-15s %-10s %-10s\n", "Product ID", "Quantity", "Threshold");
-    printf("----------------------------------------\n");
+    int lowStockThreshold = 10; // Default threshold
+    
+    printf("Low Stock Items (threshold: %d):\n", lowStockThreshold);
+    printf("%-10s %-8s %-12s %-8s\n", "Product", "Change", "Date", "Action");
+    printf("--------------------------------------------\n");
 
-    InventoryNode *current = head;
-    while (current != NULL) {
-        if (current->data.quantity < current->data.lowStockThreshold) {
-            found = 1;
-            printf("%-15s %-10d %-10d\n",
-                   current->data.productID,
-                   current->data.quantity,
-                   current->data.lowStockThreshold);
+    while (fgets(line, sizeof(line), fp)) {
+        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
+            if (abs(r.stockChange) <= lowStockThreshold) {
+                printf("%-10s %-8d %-12s %-8s\n", r.productID, r.stockChange, r.date, r.action);
+                found = 1;
+            }
         }
-        current = current->next;
     }
 
     if (!found) {
-        printf("No low stock items.\n");
-    }
-}
-
-void searchInventory(InventoryNode *head) {
-    char productID[10];
-    printf("Enter Product ID to search: ");
-    scanf("%s", productID);
-
-    InventoryNode *current = head;
-    while (current != NULL) {
-        if (strcmp(current->data.productID, productID) == 0) {
-            printf("\nProduct Found:\n");
-            printf("ID: %s\nQuantity: %d\nThreshold: %d\n",
-                   current->data.productID,
-                   current->data.quantity,
-                   current->data.lowStockThreshold);
-            return;
-        }
-        current = current->next;
+        printf("No low stock items found.\n");
     }
 
-    printf("Product ID not found.\n");
+    fclose(fp);
+    pause();
 }
 
-void sortInventoryByQuantity(InventoryNode **head) {
-    if (*head == NULL || (*head)->next == NULL) return;
+// Generate Inventory Report
+void generateInventoryReport() {
+    FILE *fp = fopen("inventory.txt", "r");
+    if (!fp) {
+        printf("No inventory records found.\n");
+        pause();
+        return;
+    }
 
-    InventoryNode *i, *j;
-    for (i = *head; i != NULL; i = i->next) {
-        for (j = i->next; j != NULL; j = j->next) {
-            if (i->data.quantity > j->data.quantity) {
-                Inventory temp = i->data;
-                i->data = j->data;
-                j->data = temp;
+    InventoryRecord r;
+    char line[256];
+    int totalRecords = 0, inCount = 0, outCount = 0;
+    int totalIn = 0, totalOut = 0;
+
+    printf("=== INVENTORY REPORT ===\n");
+    printf("%-10s %-8s %-12s %-8s\n", "Product", "Change", "Date", "Action");
+    printf("--------------------------------------------\n");
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (sscanf(line, "%[^|]|%d|%[^|]|%s", r.productID, &r.stockChange, r.date, r.action) == 4) {
+            printf("%-10s %-8d %-12s %-8s\n", r.productID, r.stockChange, r.date, r.action);
+            totalRecords++;
+            
+            if (strcmp(r.action, "IN") == 0) {
+                inCount++;
+                totalIn += r.stockChange;
+            } else if (strcmp(r.action, "OUT") == 0) {
+                outCount++;
+                totalOut += abs(r.stockChange);
             }
         }
     }
 
-    printf("Inventory sorted by quantity.\n");
-}
+    printf("\n=== SUMMARY ===\n");
+    printf("Total Records: %d\n", totalRecords);
+    printf("IN Records: %d (Total: +%d)\n", inCount, totalIn);
+    printf("OUT Records: %d (Total: -%d)\n", outCount, totalOut);
+    printf("Net Stock Change: %d\n", totalIn - totalOut);
 
-void showLowStockOnly(InventoryNode *list) {
-    printf("Low stock feature coming soon...\n");
-}
-
-void generateInventoryReport(InventoryNode *list) {
-    printf("Report generation feature coming soon...\n");
+    fclose(fp);
+    pause();
 }
