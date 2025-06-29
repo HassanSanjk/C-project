@@ -238,7 +238,7 @@ void updateInventoryRecord() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    FILE *temp = fopen("temp.txt", "w");
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
@@ -260,7 +260,7 @@ void updateInventoryRecord() {
                 if (scanf("%d", &r.stockChange) != 1) {
                     printf("Invalid input.\n");
                     clearInputBuffer();
-                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
                     pause(); return;
                 }
                 clearInputBuffer();
@@ -269,14 +269,14 @@ void updateInventoryRecord() {
                 if (scanf("%3s", r.action) != 1) {
                     printf("Invalid input.\n");
                     clearInputBuffer();
-                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
                     pause(); return;
                 }
                 clearInputBuffer();
                 
                 if (strcmp(r.action, "IN") != 0 && strcmp(r.action, "OUT") != 0) {
                     printf("Invalid action.\n");
-                    fclose(fp); fclose(temp); remove("data/temp.txt"); 
+                    fclose(fp); fclose(temp); remove("temp.txt"); 
                     pause(); return;
                 }
             }
@@ -289,10 +289,10 @@ void updateInventoryRecord() {
 
     if (found) {
         remove("inventory.txt");
-        rename("data/temp.txt", "inventory.txt");
+        rename("temp.txt", "inventory.txt");
         printf("Inventory record updated successfully!\n");
     } else {
-        remove("data/temp.txt");
+        remove("temp.txt");
         printf("Record not found.\n");
     }
 }
@@ -328,7 +328,7 @@ void deleteInventoryRecord() {
         return;
     }
     
-    FILE *temp = fopen("data/temp.txt", "w");
+    FILE *temp = fopen("temp.txt", "w");
     if (!temp) {
         printf("Error creating temporary file.\n");
         fclose(fp);
@@ -356,10 +356,10 @@ void deleteInventoryRecord() {
 
     if (found) {
         remove("inventory.txt");
-        rename("data/temp.txt", "inventory.txt");
+        rename("temp.txt", "inventory.txt");
         printf("Inventory record deleted successfully!\n");
     } else {
-        remove("data/temp.txt");
+        remove("temp.txt");
         printf("Record not found.\n");
     }
 }
