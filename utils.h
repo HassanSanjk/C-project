@@ -6,6 +6,7 @@ void pause(void);
 int isValidDate(const char *date);
 void clearScreen(void);
 void pause(void);
+void clearInputBuffer(void);
 
 #endif
 

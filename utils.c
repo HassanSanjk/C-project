@@ -26,3 +26,9 @@ void clearScreen(void) {
         system("clear");
     #endif
 }
+
+/* Add clearInputBuffer function if not in utils.h */
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}

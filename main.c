@@ -26,8 +26,13 @@ int main(void) {
     do {
         clearScreen();
         displayMainMenu();
-        printf("Select: ");
-        scanf("%d", &choice);
+        
+        // Better input handling - use scanf return value check
+        if (scanf("%d", &choice) != 1) {
+            choice = -1; // Set to invalid choice
+        }
+        clearInputBuffer(); // Clear any remaining input
+        
         handleMainMenuChoice(choice);
         
     } while (choice != 0);
@@ -52,29 +57,38 @@ void displayWelcomeMessage(void) {
 
 /* Function to display main menu */
 void displayMainMenu(void) {
-    printf("\n--- MAIN MENU ---\n");
-    printf("1. Product Management\n");
-    printf("2. Inventory & Stock Management\n");
-    printf("3. Category Management\n");
-    printf("4. Supplier Management\n");
-    printf("5. User & Transaction Management\n");
-    printf("6. Advanced Features & Analytics\n");
-    printf("7. Generate System Reports\n");
-    printf("0. Exit System\n");
+    printf("\n========================================\n");
+    printf("    INVENTORY MANAGEMENT SYSTEM\n");
+    printf("========================================\n");
+    printf("| 1. Product Management            |\n");
+    printf("| 2. Inventory & Stock Management  |\n");
+    printf("| 3. Category Management           |\n");
+    printf("| 4. Supplier Management           |\n");
+    printf("| 5. User & Transaction Management |\n");
+    printf("| 6. Advanced Features & Analytics |\n");
+    printf("| 7. Generate System Reports       |\n");
+    printf("| 0. Exit System                   |\n");
+    printf("========================================");
+    printf("\nEnter your choice: ");
 }
 
-/* NEW: Function to display user & transaction management menu */
+/* Function to display user & transaction management menu */
 void displayUserTransactionMenu(void) {
-    printf("\n--- User & Transaction Management ---\n");
-    printf("1. User Management\n");
-    printf("2. Transaction Management\n");
-    printf("0. Back to Main Menu\n");
+    printf("\n========================================\n");
+    printf("   USER & TRANSACTION MANAGEMENT\n");
+    printf("========================================\n");
+    printf("| 1. User Management               |\n");
+    printf("| 2. Transaction Management        |\n");
+    printf("| 0. Back to Main Menu             |\n");
+    printf("========================================\n");
+    printf("\nEnter your choice: ");
 }
-
 
 
 /* Function to handle main menu choices */
 void handleMainMenuChoice(int choice) {
+    int subChoice; // Declare variable for submenu
+    
     switch (choice) {
         case 1:
             /* Product Management */
@@ -93,25 +107,27 @@ void handleMainMenuChoice(int choice) {
             supplierManagementMenu();
             break;
         case 5:
-            /* User & Transaction Management */
+            /* User & Transaction Management - Fixed nested loop issue */
             do {
                 clearScreen();
                 displayUserTransactionMenu();
-                printf("Select: ");
-                scanf("%d", &choice);
-                handleUserTransactionMenuChoice(choice);
                 
-            } while (choice != 0);
+                if (scanf("%d", &subChoice) != 1) {
+                    subChoice = -1;
+                }
+                clearInputBuffer();
+                
+                handleUserTransactionMenuChoice(subChoice);
+                
+            } while (subChoice != 0);
             break;
         case 6:
             /* Advanced Features & Analytics */
-            printf("\n=== ADVANCED FEATURES & ANALYTICS ===\n");
             advancedFeaturesMenu();
             break;
         case 7:
             /* Generate System Reports */
             printf("\n=== SYSTEM REPORTS ===\n");
-            printf("Generating comprehensive system reports...\n");
             generateReports();
             pause();
             break;
@@ -157,16 +173,38 @@ void displayExitMessage(void) {
     printf("================================================================================\n");
     printf("                              Have a great day!                                \n");
     printf("================================================================================\n");
+    pause();
 }
 
 
 void generateReports(void) {
-    printf("Comprehensive reporting will be available once all modules are integrated.\n");
-    printf("Current available data:\n");
-    printf("\n--- PRODUCTS ---\n");
-    viewProducts(); /* Show current product data as a basic report */
-    printf("\n--- SUPPLIERS ---\n");
-    viewSuppliers(); /* Show current supplier data as a basic report */
-    printf("\n--- TRANSACTIONS ---\n");
-    viewTransactions(); /* Show current transaction data as a basic report */
+    printf("=== COMPREHENSIVE SYSTEM REPORTS ===\n\n");
+    
+    printf("1. PRODUCT INVENTORY REPORT\n");
+    printf("----------------------------\n");
+    viewProducts();
+    
+    printf("\n\n2. SUPPLIER INFORMATION REPORT\n");
+    printf("-------------------------------\n");
+    // Check if viewSuppliers function exists and file is accessible
+    FILE *supplierCheck = fopen("suppliers.txt", "r");
+    if (supplierCheck) {
+        fclose(supplierCheck);
+        viewSuppliers();
+    } else {
+        printf("No supplier data available or file not found.\n");
+    }
+    
+    printf("\n\n3. TRANSACTION HISTORY REPORT\n");
+    printf("------------------------------\n");
+    // Check if viewTransactions function exists and file is accessible
+    FILE *transactionCheck = fopen("transactions.txt", "r");
+    if (transactionCheck) {
+        fclose(transactionCheck);
+        viewTransactions();
+    } else {
+        printf("No transaction data available or file not found.\n");
+    }
+    
+    printf("\n=== END OF REPORTS ===\n");
 }

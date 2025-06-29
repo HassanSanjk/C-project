@@ -42,11 +42,6 @@ int isValidSupplierID(const char *id) {
     return 1;
 }
 
-// Input buffer clearing function
-void clearInputBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
 
 // Safe string input function
 void getStringInput(char *buffer, int size, const char *prompt) {
@@ -447,55 +442,49 @@ void deleteProduct() {
     }
 }
 
-/* Function to display product management menu */
+// displayProductMenu with box design to match your style
 void displayProductMenu(void) {
-    printf("\n--- Product Management ---\n");
-    printf("1. Add Product\n");
-    printf("2. View All Products\n");
-    printf("3. View Product Details\n");
-    printf("4. Update Product\n");
-    printf("5. Delete Product\n");
-    printf("0. Back to Main Menu\n");
+    printf("\n========================================\n");
+    printf("        PRODUCT MANAGEMENT\n");
+    printf("========================================\n");
+    printf("| 1. Add Product                   |\n");
+    printf("| 2. View All Products             |\n");
+    printf("| 3. View Product Details          |\n");
+    printf("| 4. Update Product                |\n");
+    printf("| 5. Delete Product                |\n");
+    printf("| 0. Back to Main Menu             |\n");
+    printf("========================================\n");
 }
 
-/* Function to handle product menu choices */
+// Fixed handleProductMenuChoice function - remove duplicate messages
 void handleProductMenuChoice(int choice) {
     switch (choice) {
         case 1:
-            printf("\n=== ADD PRODUCT ===\n");
-            addProduct();
-            printf("Product added successfully!\n");
+            addProduct();  // Already prints its own success/error messages
             pause();
             break;
             
         case 2:
-            printf("\n=== ALL PRODUCTS ===\n");
             viewProducts();
             pause();
             break;
             
         case 3:
-            printf("\n=== PRODUCT DETAILS ===\n");
             viewProduct();
             pause();
             break;
             
         case 4:
-            printf("\n=== UPDATE PRODUCT ===\n");
-            updateProduct();
-            printf("Product updated successfully!\n");
+            updateProduct();  // Already prints its own success/error messages
             pause();
             break;
             
         case 5:
-            printf("\n=== DELETE PRODUCT ===\n");
-            deleteProduct();
-            printf("Product deletion completed!\n");
+            deleteProduct();  // Already prints its own success/error messages
             pause();
             break;
             
         case 0:
-            /* Back to main menu - handled in loop */
             break;
             
         default:
@@ -505,15 +494,19 @@ void handleProductMenuChoice(int choice) {
     }
 }
 
-/* Main product management menu function */
+// Fixed productManagementMenu function - add input buffer clearing
 void productManagementMenu(void) {
     int choice;
     
     do {
         clearScreen();
         displayProductMenu();
-        printf("Select: ");
-        scanf("%d", &choice);
+        
+        if (scanf("%d", &choice) != 1) {
+            choice = -1;
+        }
+        clearInputBuffer();
+        
         handleProductMenuChoice(choice);
         
     } while (choice != 0);
